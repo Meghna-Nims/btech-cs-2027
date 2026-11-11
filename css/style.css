@@ -34,7 +34,7 @@ a {
 }
 .btech-gradient {
   display: block;
-  background: linear-gradient(90deg, #2300E6 10%, #FF3D40 90%);
+  background: linear-gradient(90deg, #2300E6 2%, #FF3D40 98%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
