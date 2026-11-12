@@ -2032,7 +2032,7 @@
 
   .btech-cs-hero .course-title {
     width: 100%;
-    font-size: clamp(43px, 11vw, 58px);
+    font-size: clamp(43px, 10vw, 58px);
     line-height: 1.05;
     letter-spacing: 1px;
     margin-bottom: 22px;
