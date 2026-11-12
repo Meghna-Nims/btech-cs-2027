@@ -127,23 +127,28 @@ if (!reducedMotion.matches) {
   if(!orbit||!marquee||!modal||!playerBox)return;
 
   const topStories=[
-    {title:"From India to Asia — NIMS University",id:"z_bOyIGb-Sw"},
-    {title:"World Health Summit",id:"UwhOJ63Vhic"},
-    {title:"Industry Expert Interview",id:"PIIjqL37-3M"},
-    {title:"Alumni Success Story",id:"Vxi3uT9ZASo"},
-    {title:"Campus Life",id:"N30uE06-Trw"},
-    {title:"Business Leadership",id:"eZ-GRDRQ-0Q"}
+    {title:"Brand Film ",id:"EjJlNHOXIXk"},
+    {title:"World Health Summit Regional Meeting 2025 ",id:"BNAbDpv-BIU"},
+    {title:"Petr Fiala's Visit to NIMS University ",id:"WYsxFymT-2s"},
+    {title:"NIMS University FPV Campus Tour ",id:"vjZlcB_w2-Q"}
   ];
 
   const bottomStories=[
-    {title:"Student Story 1",id:"VIDEO_ID_1"},
-    {title:"Student Story 2",id:"VIDEO_ID_2"},
-    {title:"Student Story 3",id:"VIDEO_ID_3"},
-    {title:"Student Story 4",id:"VIDEO_ID_4"},
-    {title:"Student Story 5",id:"VIDEO_ID_5"},
-    {title:"Student Story 6",id:"VIDEO_ID_6"},
-    {title:"Student Story 7",id:"VIDEO_ID_7"},
-    {title:"Student Story 8",id:"VIDEO_ID_8"}
+    {title:"AI ML Advertisement",id:"xgq50_i9k7c"},
+    {title:"USP",id:"y3y4T-xdFBA"},
+    {title:"Student Story 1",id:"gd4OBNkfU3o"},
+    {title:"Student Story 2",id:"cqEIpuYNv7c"},
+    {title:"Student Story 3",id:"vAHY7T9uGWU"},
+    {title:"Testimonial ",id:"eZ-GRDRQ-0Q"},
+    {title:"Testimonial 2",id:"RFWfcduoPSc"},
+    {title:"Global HR Industry Summit",id:"zbTpDJ9KehA"},
+    {title:"Walkthrough Marik Labs",id:"T2zYEz2om-Q"},
+    {title:"Marik Visit Testimonial",id:"mj0b_P6dXG8"},
+    {title:"Placement Day Celebration",id:"WezAB606iWI"},
+    {title:"Brand Video",id:"z_bOyIGb-Sw"},
+    {title:"Hostel",id:"YqucPQQTRrE"},
+    {title:"Hostel Facilities",id:"S-eyw3BJNUA"},
+    {title:"Campus Facilities",id:"o8ykj5UegSc"},
   ];
 
   let current=0,timer,startX=0,animating=false;
@@ -802,81 +807,34 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 // success stories
 
-(() => {
-  const section = document.querySelector(".success-stories");
-  const grid = section?.querySelector(".success-stories-grid");
-  const prev = section?.querySelector(".success-prev");
-  const next = section?.querySelector(".success-next");
+document.addEventListener("DOMContentLoaded", function () {
+  const slider = document.querySelector(".success-stories-grid");
+  const prev = document.querySelector(".success-prev");
+  const next = document.querySelector(".success-next");
 
-  if (!section || !grid || !prev || !next) return;
+  if (!slider || !prev || !next) return;
 
-  const cards = [...grid.querySelectorAll(".success-card")];
-
-  if (cards.length < 2) return;
-
-  let current = 0;
-  let timer;
-  let startX = 0;
-
-  const visibleCount = () => window.innerWidth <= 767 ? 1 : 2;
-
-  function slideTo(index) {
-    current = (index + cards.length) % cards.length;
-
-    grid.scrollTo({
-      left: cards[current].offsetLeft - grid.offsetLeft,
-      behavior: "smooth"
-    });
+  function getScrollAmount() {
+    const card = slider.querySelector(".success-card");
+    const gap = parseFloat(getComputedStyle(slider).gap) || 0;
+    return card ? card.offsetWidth + gap : 0;
   }
-
-  function nextSlide() {
-    slideTo(current + 1);
-  }
-
-  function previousSlide() {
-    slideTo(current - 1);
-  }
-
-  function startSlider() {
-    clearInterval(timer);
-    timer = setInterval(nextSlide, 4000);
-  }
-
-  next.addEventListener("click", () => {
-    nextSlide();
-    startSlider();
-  });
 
   prev.addEventListener("click", () => {
-    previousSlide();
-    startSlider();
+    slider.scrollBy({
+      left: -getScrollAmount(),
+      behavior: "smooth"
+    });
   });
 
-  grid.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  }, { passive: true });
-
-  grid.addEventListener("touchend", e => {
-    const difference = startX - e.changedTouches[0].clientX;
-
-    if (Math.abs(difference) > 50) {
-      difference > 0 ? nextSlide() : previousSlide();
-      startSlider();
-    }
-  }, { passive: true });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) clearInterval(timer);
-    else startSlider();
+  next.addEventListener("click", () => {
+    slider.scrollBy({
+      left: getScrollAmount(),
+      behavior: "smooth"
+    });
   });
+});
 
-  window.addEventListener("resize", () => {
-    slideTo(Math.min(current, cards.length - 1));
-    startSlider();
-  });
-
-  startSlider();
-})();
 
 
 // classroom

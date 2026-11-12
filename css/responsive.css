@@ -333,7 +333,34 @@
     height: 68px;
     font-size: 17px;
   }
+.industry-carousel {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #850008 #eee;
+  }
 
+  .industry-track {
+    display: flex;
+    width: max-content;
+    gap: 12px;
+  }
+
+  .industry-card {
+    flex: 0 0 260px;
+    height: 250px;
+  }
+
+  .industry-card img {
+    height: 190px;
+  }
+
+  .industry-card h3 {
+    height: 59px;
+    font-size: 12px;
+  }
   /* achievement */
   .student-build-content h3 {
     font-size: 54px;
@@ -737,41 +764,16 @@
     padding: 38px 24px 45px;
   }
 
-  .success-stories-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    max-width: 650px;
-  }
-
-  .success-card {
-    min-height: 410px;
+    .success-card {
+    flex-basis: calc((100% - 15px) / 2);
   }
 
   .success-info {
-    flex-basis: 50%;
-    padding: 32px 0 25px 35px;
-  }
-
-  .success-info h3 {
-    font-size: 36px;
-  }
-
-  .success-divider {
-    max-width: 220px;
-  }
-
-  .success-stories .company-logo-box {
-    width: 190px;
-    height: 65px;
+    padding-left: 18px;
   }
 
   .success-student {
-    flex-basis: 53%;
-    margin-left: -7%;
-  }
-
-  .success-stories .salary-amount span {
-    font-size: 90px;
+    flex-basis: 48%;
   }
 
 /* facilities*/
@@ -2359,83 +2361,33 @@
   
   /* success stories */
   .success-stories {
-    padding: 25px 14px 32px;
-    overflow: hidden;
-  }
-
-  .success-stories-grid {
-    display: flex;
-    width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
-    gap: 0;
-    overflow: hidden;
+    padding: 35px 18px 45px;
   }
 
   .success-card {
-    flex: 0 0 100%;
-    width: 100%;
-    min-width: 100%;
-    min-height: 350px;
-    border-radius: 15px;
+    flex-basis: 100%;
+    min-height: 440px;
   }
 
   .success-info {
-    flex-basis: 52%;
-    padding: 25px 0 20px 20px;
+    padding: 25px 0 22px 22px;
   }
 
   .success-info h3 {
-    font-size: clamp(27px, 8vw, 34px);
+    font-size: 26px;
   }
 
-  .success-divider {
-    width: 90%;
-    max-width: 160px;
-    margin: 16px 0;
-  }
-
-  .success-stories .placed-label {
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-
-  .success-stories .company-logo-box {
-    width: 135px;
-    height: 52px;
-    padding: 8px;
-    border-radius: 9px;
-  }
-
-  .success-stories .salary-info {
-    padding-top: 12px;
-  }
-
-  .success-stories .salary-info > p {
-    font-size: 14px;
-    margin-left: 2px;
-  }
-
-  .success-stories .salary-amount {
-    gap: 5px;
-  }
-
-  .success-stories .salary-amount span {
-    font-size: clamp(58px, 17vw, 76px);
-  }
-
-  .success-stories .salary-amount small {
+  .success-job-title {
+    min-height: 115px;
     font-size: 23px;
   }
 
   .success-student {
-    flex: 0 0 55%;
-    margin-left: -8%;
+    flex-basis: 50%;
   }
 
-  .success-shield {
-    width: 65%;
-    right: -12%;
+  .success-stories .company-name {
+    max-width: 145px;
   }
 
   /* facilities */
@@ -2724,6 +2676,24 @@
     font-size: 14px;
     letter-spacing: .6px;
     padding: 6px;
+  }
+  .industry-track {
+    gap: 10px;
+  }
+
+  .industry-card {
+    flex: 0 0 220px;
+    height: 230px;
+    border-radius: 18px;
+  }
+
+  .industry-card img {
+    height: 175px;
+  }
+
+  .industry-card h3 {
+    height: 54px;
+    font-size: 11px;
   }
 
   /* achivement */
