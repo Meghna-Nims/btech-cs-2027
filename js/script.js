@@ -65,6 +65,36 @@ if (!reducedMotion.matches) {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let timer;
 
+
+let activeCard = null;
+
+cards.forEach(card => {
+    card.addEventListener("mouseenter", () => {
+        if (activeCard) activeCard.classList.remove("is-active");
+
+        activeCard = card;
+        carousel.querySelector(".facilities-stage").classList.add("is-hovering");
+        card.classList.add("is-active");
+
+        isHovered = true;
+        pauseCarousel();
+    });
+});
+
+const stage = carousel.querySelector(".facilities-stage");
+
+stage.addEventListener("mouseleave", () => {
+    if (activeCard) {
+        activeCard.classList.remove("is-active");
+        activeCard = null;
+    }
+
+    stage.classList.remove("is-hovering");
+
+    isHovered = false;
+    startCarousel();
+});
+
   function advanceCarousel() {
     cards.forEach(card => {
       const slot = Number(card.dataset.slot);
@@ -919,3 +949,156 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSlider(false);
     startAutoSlide();
 })();
+
+// counter
+document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll(".placement-stats .counter");
+    const section = document.querySelector(".placement-stats");
+
+    if (!section || !counters.length) return;
+
+    let started = false;
+
+    function animateCounter(counter) {
+        const target = Number(counter.dataset.target);
+        const suffix = counter.dataset.suffix || "";
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            const currentValue = Math.floor(easedProgress * target);
+
+            counter.textContent = currentValue.toLocaleString("en-IN") + suffix;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString("en-IN") + suffix;
+            }
+        }
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && !started) {
+                started = true;
+
+                counters.forEach(function (counter) {
+                    animateCounter(counter);
+                });
+
+                observer.disconnect();
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+
+    observer.observe(section);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll(".package-counter");
+    const section = document.querySelector(".package-card")?.parentElement;
+
+    if (!section || !counters.length) return;
+
+    let started = false;
+
+    function animateCounter(counter) {
+        const target = Number(counter.dataset.target);
+        const prefix = counter.dataset.prefix || "";
+        const suffix = counter.dataset.suffix || "";
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            const currentValue = (easedProgress * target).toFixed(0);
+
+            counter.textContent = prefix + currentValue + suffix;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = prefix + target + suffix;
+            }
+        }
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && !started) {
+                started = true;
+
+                counters.forEach(function (counter) {
+                    animateCounter(counter);
+                });
+
+                observer.disconnect();
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+
+    observer.observe(section);
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll(".research-counter");
+    const section = document.querySelector(".research-stats-row");
+
+    if (!section || !counters.length) return;
+
+    let started = false;
+
+    function animateCounter(counter) {
+        const target = Number(counter.dataset.target);
+        const suffix = counter.dataset.suffix || "";
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            const currentValue = Math.floor(easedProgress * target);
+
+            counter.textContent =
+                currentValue.toLocaleString("en-IN") + suffix;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent =
+                    target.toLocaleString("en-IN") + suffix;
+            }
+        }
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting && !started) {
+                started = true;
+
+                counters.forEach(function (counter) {
+                    animateCounter(counter);
+                });
+
+                observer.disconnect();
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+
+    observer.observe(section);
+});
