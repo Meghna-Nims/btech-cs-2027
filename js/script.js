@@ -28,32 +28,144 @@
 
   const track = carousel.querySelector(".recognition-track");
   const slides = [...track.querySelectorAll(".recognition-slide")];
-  const dots = [...document.querySelectorAll(".recognition-dots button")];
+  const dotsContainer = document.querySelector(".recognition-dots");
+
+  if (!track || slides.length !== 3 || !dotsContainer) return;
+
+  const secondSlide = slides[1];
+  const longList = secondSlide.querySelector(".recognition-long-list");
+  const longCards = longList
+    ? [...longList.querySelectorAll(".recognition-long-row")]
+    : [];
+
+  const isMobile = () => window.innerWidth <= 575;
+
   let index = 0;
+  let timer = null;
+  let dots = [];
 
-  if (slides.length < 2) return;
+  function getSlideCount() {
+    return isMobile() ? 4 : 3;
+  }
 
-  const showSlide = i => {
-    index = (i + slides.length) % slides.length;
-    track.style.transform = `translateX(-${index * 100}%)`;
-    slides.forEach((s, n) => s.setAttribute("aria-hidden", String(n !== index)));
-    dots.forEach((d, n) => {
-      d.classList.toggle("is-active", n === index);
-      d.setAttribute("aria-pressed", String(n === index));
+  function createDots() {
+    const count = getSlideCount();
+
+    dotsContainer.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", `Show recognition slide ${i + 1}`);
+      dot.setAttribute("aria-pressed", "false");
+
+      dot.addEventListener("click", () => {
+        showSlide(i);
+        startAutoplay();
+      });
+
+      dotsContainer.appendChild(dot);
+    }
+
+    dots = [...dotsContainer.querySelectorAll("button")];
+  }
+
+  function showSlide(i) {
+    const count = getSlideCount();
+
+    index = (i + count) % count;
+
+    if (isMobile()) {
+      if (index === 0) {
+        track.style.transform = "translateX(0%)";
+      } else if (index === 1 || index === 2) {
+        track.style.transform = "translateX(-100%)";
+        showInnerCard(index - 1);
+      } else {
+        track.style.transform = "translateX(-200%)";
+      }
+
+      slides.forEach((slide, n) => {
+        slide.setAttribute("aria-hidden", String(
+          n !== 0 && n !== 1 && n !== 2
+            ? true
+            : index === 0 ? n !== 0
+            : index === 3 ? n !== 2
+            : n !== 1
+        ));
+      });
+
+    } else {
+      track.style.transform = `translateX(-${index * 100}%)`;
+
+      slides.forEach((slide, n) => {
+        slide.setAttribute("aria-hidden", String(n !== index));
+      });
+    }
+
+    dots.forEach((dot, n) => {
+      dot.classList.toggle("is-active", n === index);
+      dot.setAttribute("aria-pressed", String(n === index));
     });
-  };
+  }
 
-  dots.forEach((dot, i) => dot.addEventListener("click", () => showSlide(i)));
+  function showInnerCard(i) {
+    if (!longList || !longCards.length) return;
 
-  
-if (!reducedMotion.matches) {
-  setInterval(() => {
-    if (!document.hidden) showSlide(index + 1);
-  }, 2000);
-}
+    const card = longCards[i];
 
+    const left =
+      card.getBoundingClientRect().left -
+      longList.getBoundingClientRect().left +
+      longList.scrollLeft;
+
+    longList.scrollTo({
+      left,
+      behavior: "smooth"
+    });
+  }
+
+  function startAutoplay() {
+    clearInterval(timer);
+
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) return;
+
+    timer = setInterval(() => {
+      if (!document.hidden && !carousel.matches(":hover")) {
+        showSlide(index + 1);
+      }
+    }, isMobile() ? 3000 : 2000);
+  }
+
+  function handleResize() {
+    const previousCount = dots.length;
+    const newCount = getSlideCount();
+
+    if (previousCount !== newCount) {
+      index = 0;
+      createDots();
+      showSlide(0);
+    }
+
+    startAutoplay();
+  }
+
+  carousel.addEventListener("mouseenter", () => clearInterval(timer));
+  carousel.addEventListener("mouseleave", startAutoplay);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearInterval(timer);
+    else startAutoplay();
+  });
+
+  window.addEventListener("resize", handleResize);
+
+  createDots();
+  showSlide(0);
+  startAutoplay();
 })();
-
 //gallery section
 (() => {
   const carousel = document.querySelector("#facilitiesCarousel");
@@ -407,101 +519,173 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 // leadership
 
+
 (() => {
-  const viewport = document.querySelector("#leadersViewport");
-  const track = document.querySelector("#leadersTrack");
-  if (!viewport || !track) return;
+    const viewport = document.querySelector("#leadersViewport");
+    const track = document.querySelector("#leadersTrack");
 
-  const prev = document.querySelector("#leadersPrev");
-  const next = document.querySelector("#leadersNext");
-  const modal = document.querySelector("#leaderModal");
-  const player = document.querySelector("#leaderModalPlayer");
-  const close = modal?.querySelector(".leader-modal-close");
-  const backdrop = modal?.querySelector(".leader-modal-backdrop");
-  let index = 0;
+    if (!viewport || !track) return;
 
-  function visibleCount() {
-    if (innerWidth <= 480) return 1;
-    if (innerWidth <= 767) return 2;
-    return 3;
-  }
+    const prev = document.querySelector("#leadersPrev");
+    const next = document.querySelector("#leadersNext");
+    const modal = document.querySelector("#leaderModal");
+    const player = document.querySelector("#leaderModalPlayer");
+    const close = modal?.querySelector(".leader-modal-close");
+    const backdrop = modal?.querySelector(".leader-modal-backdrop");
 
-  function update() {
     const cards = [...track.querySelectorAll(".leader-card")];
+
     if (!cards.length) return;
-    index = Math.max(0, Math.min(index, cards.length - visibleCount()));
-    const card = cards[0];
-    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-    track.style.transform = `translateX(-${index * (card.getBoundingClientRect().width + gap)}px)`;
-  }
 
-  next?.addEventListener("click", () => {
-    const max = track.querySelectorAll(".leader-card").length - visibleCount();
-    index = index >= max ? 0 : index + 1;
+    let index = 0;
+    let timer = null;
+    let isHovered = false;
+
+    function visibleCount() {
+        if (window.innerWidth <= 480) return 1;
+        if (window.innerWidth <= 767) return 2;
+        return 3;
+    }
+
+    function update() {
+        const gap = parseFloat(getComputedStyle(track).gap) || 0;
+        const cardWidth = cards[0].getBoundingClientRect().width;
+        const maxIndex = Math.max(0, cards.length - visibleCount());
+
+        index = Math.max(0, Math.min(index, maxIndex));
+
+        track.style.transform =
+            `translateX(-${index * (cardWidth + gap)}px)`;
+    }
+
+    function moveNext() {
+        const maxIndex = Math.max(0, cards.length - visibleCount());
+
+        index = index >= maxIndex ? 0 : Math.min(index + visibleCount(), maxIndex);
+        update();
+    }
+
+    function movePrev() {
+        const maxIndex = Math.max(0, cards.length - visibleCount());
+
+        index = index <= 0
+            ? maxIndex
+            : Math.max(0, index - visibleCount());
+
+        update();
+    }
+
+    function startAutoplay() {
+        clearInterval(timer);
+
+        if (isHovered || document.hidden || modal?.classList.contains("is-open")) {
+            return;
+        }
+
+        timer = setInterval(moveNext, 2500);
+    }
+
+    function pauseAutoplay() {
+        clearInterval(timer);
+        timer = null;
+    }
+
+    // Navigation buttons
+    next?.addEventListener("click", () => {
+        moveNext();
+        startAutoplay();
+    });
+
+    prev?.addEventListener("click", () => {
+        movePrev();
+        startAutoplay();
+    });
+
+    // Pause on hover
+    viewport.addEventListener("mouseenter", () => {
+        isHovered = true;
+        pauseAutoplay();
+    });
+
+    viewport.addEventListener("mouseleave", () => {
+        isHovered = false;
+        startAutoplay();
+    });
+
+    // Video modal
+    function openVideo(url) {
+        if (!url || !modal || !player) return;
+
+        const iframe = document.createElement("iframe");
+        iframe.src = url;
+        iframe.title = "Industry leader video";
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+        iframe.allowFullscreen = true;
+
+        player.replaceChildren(iframe);
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("leader-modal-open");
+
+        pauseAutoplay();
+    }
+
+    function closeVideo() {
+        if (!modal || !player) return;
+
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        player.replaceChildren();
+        document.body.classList.remove("leader-modal-open");
+
+        startAutoplay();
+    }
+
+    track.addEventListener("click", event => {
+        const button = event.target.closest(".leader-play");
+        if (!button) return;
+
+        openVideo(button.dataset.video);
+    });
+
+    close?.addEventListener("click", closeVideo);
+    backdrop?.addEventListener("click", closeVideo);
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeVideo();
+    });
+
+    window.addEventListener("resize", () => {
+        update();
+    });
+
+    document.addEventListener("visibilitychange", startAutoplay);
+
     update();
-  });
+    startAutoplay();
 
-  prev?.addEventListener("click", () => {
-    const max = track.querySelectorAll(".leader-card").length - visibleCount();
-    index = index <= 0 ? max : index - 1;
-    update();
-  });
-
-  function openVideo(url) {
-    if (!url || !modal || !player) return;
-    const iframe = document.createElement("iframe");
-    iframe.src = url;
-    iframe.title = "Industry leader video";
-    iframe.allow = "autoplay; encrypted-media; picture-in-picture";
-    iframe.allowFullscreen = true;
-    player.replaceChildren(iframe);
-    modal.classList.add("is-open");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("leader-modal-open");
-  }
-
-  function closeVideo() {
-    if (!modal || !player) return;
-    modal.classList.remove("is-open");
-    modal.setAttribute("aria-hidden", "true");
-    player.replaceChildren();
-    document.body.classList.remove("leader-modal-open");
-  }
-
-  track.addEventListener("click", event => {
-    const button = event.target.closest(".leader-play");
-    if (!button) return;
-    openVideo(button.dataset.video);
-  });
-
-  close?.addEventListener("click", closeVideo);
-  backdrop?.addEventListener("click", closeVideo);
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeVideo();
-  });
-
-  window.addEventListener("resize", update);
-  update();
 })();
 
-// placement path 
+
+// placement path internships
 
 (() => {
   const viewport = document.querySelector("#placementPathViewport");
   const track = document.querySelector("#placementPathTrack");
   const prev = document.querySelector("#placementPathPrev");
   const next = document.querySelector("#placementPathNext");
+
   if (!viewport || !track || !prev || !next) return;
 
   const cards = [...track.querySelectorAll(".placement-path-card")];
   if (cards.length < 2) return;
 
   let index = 0;
-  let timer;
+  let timer = null;
   let hovering = false;
 
   function visibleCount() {
-    return innerWidth <= 767 ? 1 : 2;
+    return window.innerWidth <= 767 ? 1 : 2;
   }
 
   function maxIndex() {
@@ -510,45 +694,73 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
   function updateSlider() {
     const gap = parseFloat(getComputedStyle(track).gap) || 0;
-    const step = cards[0].getBoundingClientRect().width + gap;
+    const cardWidth = cards[0].getBoundingClientRect().width;
+    const step = cardWidth + gap;
+
     index = Math.min(index, maxIndex());
+
     track.style.transform = `translateX(-${index * step}px)`;
+
     prev.disabled = index === 0;
-    next.disabled = index === maxIndex();
+    next.disabled = index >= maxIndex();
   }
 
   function advance() {
-    index = index >= maxIndex() ? 0 : index + 1;
+    const step = visibleCount();
+    index = index >= maxIndex() ? 0 : Math.min(index + step, maxIndex());
     updateSlider();
   }
 
   function startAutoSlide() {
     clearInterval(timer);
+
     timer = setInterval(() => {
-      if (!hovering && !document.hidden) advance();
+      if (!hovering && !document.hidden) {
+        advance();
+      }
     }, 3000);
   }
 
   next.addEventListener("click", () => {
-    index = index >= maxIndex() ? 0 : index + 1;
+    index = index >= maxIndex()
+      ? 0
+      : Math.min(index + visibleCount(), maxIndex());
+
     updateSlider();
     startAutoSlide();
   });
 
   prev.addEventListener("click", () => {
-    index = index <= 0 ? maxIndex() : index - 1;
+    index = index <= 0
+      ? maxIndex()
+      : Math.max(index - visibleCount(), 0);
+
     updateSlider();
     startAutoSlide();
   });
 
-  viewport.addEventListener("mouseenter", () => hovering = true);
-  viewport.addEventListener("mouseleave", () => hovering = false);
-  viewport.addEventListener("touchstart", () => hovering = true, { passive: true });
-  viewport.addEventListener("touchend", () => hovering = false, { passive: true });
+  viewport.addEventListener("mouseenter", () => {
+    hovering = true;
+  });
+
+  viewport.addEventListener("mouseleave", () => {
+    hovering = false;
+  });
+
+  viewport.addEventListener("touchstart", () => {
+    hovering = true;
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", () => {
+    hovering = false;
+  }, { passive: true });
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) clearInterval(timer);
-    else startAutoSlide();
+    if (document.hidden) {
+      clearInterval(timer);
+    } else {
+      startAutoSlide();
+    }
   });
 
   window.addEventListener("resize", updateSlider);
@@ -837,33 +1049,113 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 // success stories
 
+
 document.addEventListener("DOMContentLoaded", function () {
-  const slider = document.querySelector(".success-stories-grid");
-  const prev = document.querySelector(".success-prev");
-  const next = document.querySelector(".success-next");
+    const slider = document.querySelector(".success-stories-grid");
+    const prev = document.querySelector(".success-prev");
+    const next = document.querySelector(".success-next");
 
-  if (!slider || !prev || !next) return;
+    if (!slider || !prev || !next) return;
 
-  function getScrollAmount() {
-    const card = slider.querySelector(".success-card");
-    const gap = parseFloat(getComputedStyle(slider).gap) || 0;
-    return card ? card.offsetWidth + gap : 0;
-  }
+    const cards = [...slider.querySelectorAll(".success-card")];
 
-  prev.addEventListener("click", () => {
-    slider.scrollBy({
-      left: -getScrollAmount(),
-      behavior: "smooth"
+    if (cards.length < 2) return;
+
+    let currentIndex = 0;
+    let timer = null;
+    let isHovered = false;
+
+    function getVisibleCards() {
+        if (window.innerWidth <= 575) return 1;
+        if (window.innerWidth <= 991) return 2;
+        return 3;
+    }
+
+    function getStep() {
+        const card = cards[0];
+        const gap = parseFloat(getComputedStyle(slider).gap) || 0;
+
+        return (card.offsetWidth + gap) * getVisibleCards();
+    }
+
+    function showGroup(index) {
+        const maxIndex = Math.max(0, cards.length - getVisibleCards());
+
+        currentIndex = Math.max(0, Math.min(index, maxIndex));
+
+        slider.scrollTo({
+            left: currentIndex * (
+                cards[0].offsetWidth +
+                (parseFloat(getComputedStyle(slider).gap) || 0)
+            ),
+            behavior: "smooth"
+        });
+    }
+
+    function moveNext() {
+        const visible = getVisibleCards();
+        const maxIndex = Math.max(0, cards.length - visible);
+
+        if (currentIndex >= maxIndex) {
+            showGroup(0);
+        } else {
+            showGroup(Math.min(currentIndex + visible, maxIndex));
+        }
+    }
+
+    function movePrev() {
+        const visible = getVisibleCards();
+
+        if (currentIndex <= 0) {
+            showGroup(Math.max(0, cards.length - visible));
+        } else {
+            showGroup(Math.max(0, currentIndex - visible));
+        }
+    }
+
+    function startAutoplay() {
+        clearInterval(timer);
+
+        if (isHovered || document.hidden) return;
+
+        timer = setInterval(moveNext, 2500);
+    }
+
+    function pauseAutoplay() {
+        clearInterval(timer);
+        timer = null;
+    }
+
+    next.addEventListener("click", () => {
+        moveNext();
+        startAutoplay();
     });
-  });
 
-  next.addEventListener("click", () => {
-    slider.scrollBy({
-      left: getScrollAmount(),
-      behavior: "smooth"
+    prev.addEventListener("click", () => {
+        movePrev();
+        startAutoplay();
     });
-  });
+
+    slider.addEventListener("mouseenter", () => {
+        isHovered = true;
+        pauseAutoplay();
+    });
+
+    slider.addEventListener("mouseleave", () => {
+        isHovered = false;
+        startAutoplay();
+    });
+
+    document.addEventListener("visibilitychange", startAutoplay);
+
+    window.addEventListener("resize", () => {
+        showGroup(currentIndex);
+    });
+
+    showGroup(0);
+    startAutoplay();
 });
+
 
 
 
@@ -1102,3 +1394,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     observer.observe(section);
 });
+
+// sticky bottom
+
+(() => {
+  const stickyBar = document.querySelector("#stickyAdmissionBar");
+  const header = document.querySelector(".site-header");
+  const admissionSection = document.querySelector(".admission-open-section");
+
+  if (!stickyBar || !header || !admissionSection) return;
+
+  let headerPassed = false;
+  let admissionReached = false;
+
+  function updateStickyBar() {
+    stickyBar.classList.toggle(
+      "is-visible",
+      headerPassed && !admissionReached
+    );
+  }
+
+  const headerObserver = new IntersectionObserver(([entry]) => {
+    headerPassed = !entry.isIntersecting;
+    updateStickyBar();
+  }, {
+    threshold: 0
+  });
+
+  const admissionObserver = new IntersectionObserver(([entry]) => {
+    admissionReached = entry.isIntersecting;
+    updateStickyBar();
+  }, {
+    threshold: 0
+  });
+
+  headerObserver.observe(header);
+  admissionObserver.observe(admissionSection);
+})();

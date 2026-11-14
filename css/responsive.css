@@ -94,6 +94,19 @@
   .recognition-long-details span {
     font-size: 11px;
   }
+  .recognition-long-row {
+    grid-template-columns: 150px 30px minmax(0, 1fr);
+  }
+
+  .recognition-long-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 8px;
+    padding: 10px 0;
+  }
+
+  .recognition-long-details > div {
+    min-height: 100px;
+  }
 
 /* placement highlight*/
 .placement-highlight .placement-top {
@@ -2180,48 +2193,148 @@
     content: none !important;
   }
 
+  /* SECOND SLIDE - HORIZONTAL SCROLL */
+
+  
+/* RECOGNITION SECOND SLIDE - MOBILE FIX */
+@media (max-width: 575px) {
+
+  .recognition-slide:nth-child(2) {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
   .recognition-slide:nth-child(2) .recognition-long-list {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: 100%;
+    max-width: 100%;
     gap: 12px;
-  }
-
-  .recognition-slide:nth-child(2) .recognition-long-row {
-    grid-template-columns: 1fr;
     padding: 12px;
-    border-radius: 12px;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
   }
 
-  .recognition-long-brand {
-    justify-content: flex-start;
-    padding: 5px 10px;
-  }
-
-  .recognition-long-brand img {
-    width: 125px;
-    height: 45px;
-  }
-
-  .recognition-arrow {
+  .recognition-slide:nth-child(2) .recognition-long-list::-webkit-scrollbar {
     display: none;
   }
 
-  .recognition-long-details {
-    grid-template-columns: 1fr 1fr;
-    padding: 5px 0;
+  /* CEGR AND ASSOCHAM - ONE CARD PER SWIPE */
+
+  .recognition-slide:nth-child(2) .recognition-long-row {
+    display: flex !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 12px;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    scroll-snap-align: start;
+    overflow: hidden;
   }
 
-  .recognition-long-details > div {
-    min-height: 75px;
-    padding: 10px;
+  /* BRAND LOGO */
+
+  .recognition-slide:nth-child(2) .recognition-long-brand {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 5px 10px 12px;
+    border-bottom: 1px solid #eee;
   }
 
-  .recognition-long-details strong {
-    font-size: 10px;
+  .recognition-slide:nth-child(2) .recognition-long-brand img {
+    display: block;
+    width: 125px;
+    max-width: 100%;
+    height: 45px;
+    object-fit: contain;
+    object-position: left center;
   }
 
-  .recognition-long-details span {
-    font-size: 10px;
+  /* HIDE ARROW */
+
+  .recognition-slide:nth-child(2) .recognition-arrow {
+    display: none !important;
+  }
+
+  /* AWARDS - VERTICAL ROWS INSIDE EACH CARD */
+
+  .recognition-slide:nth-child(2) .recognition-long-details {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100%;
+    min-width: 0;
+    gap: 0;
+    padding: 0;
+  }
+
+  .recognition-slide:nth-child(2) .recognition-long-details > div {
+    display: grid !important;
+    grid-template-columns: 55px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 3px;
+    width: 100%;
+    min-width: 0;
+    min-height: 85px;
+    padding: 12px 5px;
+    border: none !important;
+    border-bottom: 1px solid #eee !important;
+    box-sizing: border-box;
+  }
+
+  .recognition-slide:nth-child(2) .recognition-long-details > div:last-child {
+    border-bottom: none !important;
+  }
+
+  .recognition-slide:nth-child(2) .recognition-long-details > div img {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 48px;
+    height: 58px;
+    object-fit: contain;
+    margin: auto;
+  }
+
+  .recognition-slide:nth-child(2) .recognition-long-details > div strong {
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+    min-width: 0;
+    font-size: 11px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .recognition-slide:nth-child(2) .recognition-long-details > div span {
+    grid-column: 2;
+    grid-row: 2;
+    display: block;
+    min-width: 0;
+    font-size: 11px;
     line-height: 1.4;
+    overflow-wrap: anywhere;
   }
+}
+
+
+  /* SINGLE ROW */
 
   .recognition-single-row {
     grid-template-columns: 1fr;
@@ -2252,6 +2365,7 @@
   .recognition-dots {
     margin-top: 18px;
   }
+
 
   /* placement highlight */
   .placement-highlight .placement-top {
