@@ -166,94 +166,229 @@
   showSlide(0);
   startAutoplay();
 })();
+
 //gallery section
+
 (() => {
   const carousel = document.querySelector("#facilitiesCarousel");
   if (!carousel) return;
 
-  const cards = [...carousel.querySelectorAll(".facility-card")];
+  const stage = carousel.querySelector(".facilities-stage");
+  const cards = [...stage.querySelectorAll(".facility-card")];
+
   if (cards.length < 2) return;
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let timer;
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
 
+  const lightbox = document.querySelector("#facilityLightbox");
+  const lightboxImage = document.querySelector("#facilityLightboxImage");
+  const closeBtn = lightbox?.querySelector(".facility-lightbox-close");
 
-let activeCard = null;
+  let activeIndex = 0;
+  let activeCard = null;
+  let isHovered = false;
+  let timer = null;
 
-cards.forEach(card => {
-    card.addEventListener("mouseenter", () => {
-        if (activeCard) activeCard.classList.remove("is-active");
+  /* ASSIGN THE ORIGINAL SEVEN 3D POSITIONS */
 
-        activeCard = card;
-        carousel.querySelector(".facilities-stage").classList.add("is-hovering");
-        card.classList.add("is-active");
+  function updateCarousel() {
+    const total = cards.length;
 
-        isHovered = true;
-        pauseCarousel();
+    cards.forEach((card, i) => {
+      const slot = (i - activeIndex + total) % total;
+
+      if (slot <= 6) {
+        card.dataset.slot = slot;
+        card.classList.remove("is-hidden");
+      } else {
+        card.classList.add("is-hidden");
+      }
     });
-});
+  }
 
-const stage = carousel.querySelector(".facilities-stage");
 
-stage.addEventListener("mouseleave", () => {
-    if (activeCard) {
+  function advanceCarousel() {
+    if (isHovered || document.hidden) return;
+
+    activeIndex = (activeIndex + 1) % cards.length;
+    updateCarousel();
+  }
+
+  function pauseCarousel() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function startCarousel() {
+    pauseCarousel();
+
+    if (
+      document.hidden ||
+      reducedMotion.matches ||
+      isHovered ||
+      lightbox?.classList.contains("active")
+    ) return;
+
+    timer = setInterval(advanceCarousel, 1800);
+  }
+
+  /* HOVER EXPANSION */
+
+  cards.forEach(card => {
+    card.addEventListener("mouseenter", () => {
+      if (card.classList.contains("is-hidden")) return;
+
+      if (activeCard) {
         activeCard.classList.remove("is-active");
-        activeCard = null;
+      }
+
+      activeCard = card;
+      isHovered = true;
+
+      stage.classList.add("is-hovering");
+      card.classList.add("is-active");
+
+      pauseCarousel();
+    });
+  });
+
+  stage.addEventListener("mouseleave", () => {
+    if (activeCard) {
+      activeCard.classList.remove("is-active");
+      activeCard = null;
     }
 
     stage.classList.remove("is-hovering");
 
     isHovered = false;
     startCarousel();
-});
-
-  function advanceCarousel() {
-    cards.forEach(card => {
-      const slot = Number(card.dataset.slot);
-      card.dataset.slot = String((slot + cards.length - 1) % cards.length);
-    });
-  }
-
-  function startCarousel() {
-    clearInterval(timer);
-    if (document.hidden || reducedMotion.matches) return;
-    timer = setInterval(advanceCarousel, 2800);
-  }
-
-  document.addEventListener("visibilitychange", startCarousel);
-  reducedMotion.addEventListener("change", startCarousel);
-  startCarousel();
-
-  const lightbox = document.getElementById("facilityLightbox");
-  const lightboxImage = document.getElementById("facilityLightboxImage");
-  const closeBtn = lightbox?.querySelector(".facility-lightbox-close");
-
-  if (!lightbox || !lightboxImage || !closeBtn) return;
-
-  cards.forEach(card => {
-    const img = card.querySelector("img");
-
-    img?.addEventListener("click", () => {
-      lightboxImage.src = img.src;
-      lightboxImage.alt = img.alt;
-      lightbox.classList.add("active");
-      document.body.style.overflow = "hidden";
-    });
   });
 
-  function closeLightbox() {
+
+  if (lightbox && lightboxImage && closeBtn) {
+    cards.forEach(card => {
+      const img = card.querySelector("img");
+
+      img?.addEventListener("click", () => {
+        if (card.classList.contains("is-hidden")) return;
+
+        lightboxImage.src = img.src;
+        lightboxImage.alt = img.alt;
+
+        lightbox.classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        pauseCarousel();
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove("active");
+      document.body.style.overflow = "";
+
+      if (activeCard) {
+        startCarousel();
+      } else {
+        startCarousel();
+      }
+    }
+
+    closeBtn.addEventListener("click", closeLightbox);
+
+    lightbox.addEventListener("click", event => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && lightbox.classList.contains("active")) {
+        closeLightbox();
+      }
+    });
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      pauseCarousel();
+    } else {
+      startCarousel();
+    }
+  });
+
+  reducedMotion.addEventListener("change", startCarousel);
+
+  updateCarousel();
+  startCarousel();
+
+})();
+
+
+(() => {
+  const section = document.querySelector(".facilities-section");
+  if (!section) return;
+
+  const stage = section.querySelector(".facilities-stage");
+  const lightbox = section.querySelector("#facilityLightbox");
+
+  if (!stage || !lightbox) return;
+
+  const popupImage = lightbox.querySelector("#facilityLightboxImage");
+  const popupTitle = lightbox.querySelector("#facilityPopupTitle");
+  const popupCategory = lightbox.querySelector("#facilityPopupCategory");
+  const popupDescription = lightbox.querySelector("#facilityPopupDescription");
+  const popupCount = lightbox.querySelector("#facilityPopupCount");
+  const closeButton = lightbox.querySelector(".facility-lightbox-close");
+
+  const cards = [...stage.querySelectorAll(".facility-card")];
+
+  function openPopup(card) {
+    const image = card.querySelector("img");
+    const title = card.querySelector("figcaption");
+
+    if (!image || !title) return;
+
+    const index = cards.indexOf(card) + 1;
+
+    popupImage.src = image.currentSrc || image.src;
+    popupImage.alt = image.alt || title.textContent.trim();
+
+    popupTitle.textContent = title.textContent.trim();
+    popupCategory.textContent = card.dataset.category || "CAMPUS FACILITY";
+    popupDescription.textContent = card.dataset.description || "";
+    popupCount.textContent =
+      `${String(index).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
+
+    lightbox.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closePopup() {
     lightbox.classList.remove("active");
     document.body.style.overflow = "";
   }
 
-  closeBtn.addEventListener("click", closeLightbox);
+  stage.addEventListener("click", (event) => {
+    const card = event.target.closest(".facility-card");
 
-  lightbox.addEventListener("click", event => {
-    if (event.target === lightbox) closeLightbox();
+    if (card && stage.contains(card)) {
+      openPopup(card);
+    }
   });
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeLightbox();
+  closeButton?.addEventListener("click", closePopup);
+
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      closePopup();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox.classList.contains("active")) {
+      closePopup();
+    }
   });
 })();
 
