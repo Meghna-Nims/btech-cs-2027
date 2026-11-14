@@ -2957,7 +2957,7 @@
   .programmes-heading h3{font-size:clamp(29px,8vw,36px);line-height:1.15}
   .programme-arrow{margin-right:4px}
   .programmes-heading p{font-size:12px;margin-top:5px}
-  .programmes-heading img{width:125px;height:110px;right:-8px}
+  .programmes-heading img{width:125px;height:110px;right:-8px; top: 13px;}
   .programme-group{padding:15px 13px 6px;margin-bottom:12px}
   .programme-group h3{font-size:26px;margin-bottom:14px}
   .programme-item{gap:9px;padding:8px 0 13px}

@@ -176,6 +176,9 @@
   const stage = carousel.querySelector(".facilities-stage");
   const cards = [...stage.querySelectorAll(".facility-card")];
 
+  const prevBtn = carousel.querySelector(".facilities-prev");
+  const nextBtn = carousel.querySelector(".facilities-next");
+
   if (cards.length < 2) return;
 
   const reducedMotion = window.matchMedia(
@@ -190,8 +193,6 @@
   let activeCard = null;
   let isHovered = false;
   let timer = null;
-
-  /* ASSIGN THE ORIGINAL SEVEN 3D POSITIONS */
 
   function updateCarousel() {
     const total = cards.length;
@@ -208,13 +209,28 @@
     });
   }
 
-
   function advanceCarousel() {
     if (isHovered || document.hidden) return;
 
     activeIndex = (activeIndex + 1) % cards.length;
     updateCarousel();
   }
+
+  function moveCarousel(direction) {
+    activeIndex =
+      (activeIndex + direction + cards.length) % cards.length;
+
+    updateCarousel();
+    startCarousel();
+  }
+
+  prevBtn?.addEventListener("click", () => {
+    moveCarousel(-1);
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    moveCarousel(1);
+  });
 
   function pauseCarousel() {
     clearInterval(timer);
@@ -266,6 +282,7 @@
     startCarousel();
   });
 
+  /* LIGHTBOX */
 
   if (lightbox && lightboxImage && closeBtn) {
     cards.forEach(card => {
@@ -287,12 +304,7 @@
     function closeLightbox() {
       lightbox.classList.remove("active");
       document.body.style.overflow = "";
-
-      if (activeCard) {
-        startCarousel();
-      } else {
-        startCarousel();
-      }
+      startCarousel();
     }
 
     closeBtn.addEventListener("click", closeLightbox);
@@ -309,6 +321,7 @@
       }
     });
   }
+
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       pauseCarousel();
@@ -1290,7 +1303,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function animateCounter(counter) {
         const target = Number(counter.dataset.target);
-        const suffix = counter.dataset.suffix || "";
         const duration = 2000;
         const startTime = performance.now();
 
@@ -1299,12 +1311,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const easedProgress = 1 - Math.pow(1 - progress, 3);
             const currentValue = Math.floor(easedProgress * target);
 
-            counter.textContent = currentValue.toLocaleString("en-IN") + suffix;
+            counter.textContent = currentValue.toLocaleString("en-IN");
 
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
             } else {
-                counter.textContent = target.toLocaleString("en-IN") + suffix;
+                counter.textContent = target.toLocaleString("en-IN");
             }
         }
 
@@ -1437,34 +1449,63 @@ document.addEventListener("DOMContentLoaded", function () {
 (() => {
   const stickyBar = document.querySelector("#stickyAdmissionBar");
   const header = document.querySelector(".site-header");
-  const admissionSection = document.querySelector(".admission-open-section");
 
-  if (!stickyBar || !header || !admissionSection) return;
+  const hideSections = [
+    ".admission-open-section",
+    ".campus-showcase",
+    ".nims-footer"
+  ];
+
+  if (!stickyBar || !header) return;
 
   let headerPassed = false;
-  let admissionReached = false;
+  let shouldHide = false;
+  let footerReached = false;
 
   function updateStickyBar() {
+    const atPageBottom =
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 5;
+
     stickyBar.classList.toggle(
       "is-visible",
-      headerPassed && !admissionReached
+      headerPassed && !shouldHide && !footerReached && !atPageBottom
     );
   }
 
   const headerObserver = new IntersectionObserver(([entry]) => {
     headerPassed = !entry.isIntersecting;
     updateStickyBar();
-  }, {
-    threshold: 0
-  });
+  }, { threshold: 0 });
 
-  const admissionObserver = new IntersectionObserver(([entry]) => {
-    admissionReached = entry.isIntersecting;
+  const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.target.matches(".nims-footer")) {
+        footerReached = entry.isIntersecting;
+      }
+
+      if (entry.target.matches(".admission-open-section, .campus-showcase")) {
+        entry.target.dataset.reached = entry.isIntersecting;
+      }
+    });
+
+    shouldHide = hideSections.some(selector => {
+      const section = document.querySelector(selector);
+      return section && section.dataset.reached === "true";
+    });
+
     updateStickyBar();
-  }, {
-    threshold: 0
-  });
+  }, { threshold: 0 });
 
   headerObserver.observe(header);
-  admissionObserver.observe(admissionSection);
+
+  hideSections.forEach(selector => {
+    const section = document.querySelector(selector);
+    if (section) sectionObserver.observe(section);
+  });
+
+  window.addEventListener("scroll", updateStickyBar, { passive: true });
+  window.addEventListener("resize", updateStickyBar);
+
+  updateStickyBar();
 })();
