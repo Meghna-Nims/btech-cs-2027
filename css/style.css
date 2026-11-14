@@ -2309,6 +2309,122 @@ body.story-modal-open{overflow:hidden}
 }
 
 
+
+
+@media (max-width: 767px) {
+
+  #facultyModal .faculty-modal-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 20px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  #facultyModal .profile-left {
+    position: relative !important;
+    width: 100% !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    flex: 0 0 220px !important;
+  }
+
+  #facultyModal .profile-right {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 18px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: max-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+#facultyModal .profile-name{
+  text-align: center !important;
+}
+  #facultyModal .profile-right > * {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+  }
+
+  #facultyModal .profile-header {
+            display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 5px !important;
+        margin: 0 auto !important;
+  }
+
+  #facultyModal .profile-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-content: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  #facultyModal .profile-highlights {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-rows: min-content !important;
+    align-content: start !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  #facultyModal .highlight-item {
+    display: flex !important;
+    position: relative !important;
+    height: auto !important;
+    min-height: 85px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  #facultyModal .profile-publications {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: min-content !important;
+    align-content: start !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  #facultyModal .publication-card {
+    display: flex !important;
+    position: relative !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    min-height: 110px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #facultyModal .profile-publications {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+
+
 /* faculty end */
 
 /* industry start */

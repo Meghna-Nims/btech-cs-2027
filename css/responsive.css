@@ -1728,7 +1728,6 @@
   .profile-right { height: auto; padding: 10px 14px 18px; gap: 15px; }
   .profile-header { min-height: 60px; padding-right: 28px; }
   .profile-name h2 { font-size: 19px; }
-  .profile-award { width: 90px; }
   .profile-award img { width: 48px; height: 40px; }
   .profile-stats { min-height: 75px; margin: 0; row-gap: 12px; }
   .profile-stats > div { height: 35px; }

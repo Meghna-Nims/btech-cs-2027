@@ -906,26 +906,20 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 // faculty section
 
-/* FACULTY POPUP + DESKTOP AND MOBILE SLIDER */
-
 (() => {
-
   function initFaculty() {
-
     const section = document.querySelector(".faculty-section");
     if (!section) return;
 
     const row = section.querySelector(".faculty-row");
     const modal = document.querySelector("#facultyModal");
     const modalBody = document.querySelector("#facultyModalBody");
-
     const prevBtn = section.querySelector(".faculty-prev");
     const nextBtn = section.querySelector(".faculty-next");
 
     if (!row || !prevBtn || !nextBtn) return;
 
-    const cards = Array.from(row.querySelectorAll(".faculty-col"));
-
+    const cards = [...row.querySelectorAll(".faculty-col")];
     if (!cards.length) return;
 
     const mobile = window.matchMedia("(max-width: 575px)");
@@ -944,15 +938,10 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
     const getVisibleCount = () => mobile.matches ? 1 : 5;
 
-
-    /* FACULTY POPUP */
-
     function openProfile(card) {
-
       if (!modal || !modalBody) return;
 
       const profileId = card.dataset.profile;
-
       if (!profileId) return;
 
       const profile = document.getElementById(profileId);
@@ -965,11 +954,9 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
       document.body.style.overflow = "hidden";
 
       stopSlider();
-
     }
 
     function closeProfile() {
-
       if (!modal || !modalBody) return;
 
       modal.classList.remove("active");
@@ -978,208 +965,123 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
       document.body.style.overflow = "";
 
       startSlider();
-
     }
 
     if (modal) {
+      modal.querySelector(".faculty-modal-close")?.addEventListener("click", closeProfile);
 
-      const closeBtn = modal.querySelector(".faculty-modal-close");
-      const overlay = modal.querySelector(".faculty-modal-overlay");
+      modal.querySelector(".faculty-modal-overlay")?.addEventListener("click", closeProfile);
 
-      if (closeBtn) {
-        closeBtn.addEventListener("click", closeProfile);
-      }
-
-      if (overlay) {
-        overlay.addEventListener("click", closeProfile);
-      }
-
-      document.addEventListener("keydown", function (e) {
-
-        if (
-          e.key === "Escape" &&
-          modal.classList.contains("active")
-        ) {
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && modal.classList.contains("active")) {
           closeProfile();
         }
-
       });
-
     }
 
-    section.addEventListener("click", function (e) {
-
+    section.addEventListener("click", e => {
       const card = e.target.closest(".faculty-card");
-
-      if (!card) return;
-
-      openProfile(card);
-
+      if (card) openProfile(card);
     });
 
-
-    /* RENDER FACULTY */
-
     function renderFaculty() {
-
       const visibleCount = getVisibleCount();
 
       cards.forEach((card, index) => {
-
         const visible =
           index >= currentIndex &&
           index < currentIndex + visibleCount;
 
         card.classList.toggle("is-visible", visible);
-
         card.classList.remove(...positionClasses);
 
-        if (visible) {
-
+        if (visible && !mobile.matches) {
           const position = index - currentIndex;
 
-          if (!mobile.matches && positionClasses[position]) {
+          if (positionClasses[position]) {
             card.classList.add(positionClasses[position]);
           }
-
         }
-
       });
-
     }
-
-
-    /* NEXT FACULTY */
 
     function nextFaculty() {
-
       const visibleCount = getVisibleCount();
 
-      if (currentIndex + visibleCount < cards.length) {
-
-        currentIndex += visibleCount;
-
-      } else {
-
-        currentIndex = 0;
-
-      }
+      currentIndex =
+        currentIndex + visibleCount < cards.length
+          ? currentIndex + visibleCount
+          : 0;
 
       renderFaculty();
-
     }
-
-
-    /* PREVIOUS FACULTY */
 
     function previousFaculty() {
-
       const visibleCount = getVisibleCount();
 
-      if (currentIndex >= visibleCount) {
-
-        currentIndex -= visibleCount;
-
-      } else {
-
-        currentIndex =
-          Math.floor((cards.length - 1) / visibleCount) * visibleCount;
-
-      }
+      currentIndex =
+        currentIndex >= visibleCount
+          ? currentIndex - visibleCount
+          : Math.floor((cards.length - 1) / visibleCount) * visibleCount;
 
       renderFaculty();
-
     }
 
-
-    /* AUTO SLIDER */
-
     function stopSlider() {
-
       clearInterval(sliderTimer);
       sliderTimer = null;
-
     }
 
     function startSlider() {
-
       stopSlider();
 
       if (
         document.hidden ||
         motion.matches ||
-        (modal && modal.classList.contains("active")) ||
+        modal?.classList.contains("active") ||
         cards.length <= getVisibleCount()
-      ) {
-        return;
-      }
+      ) return;
 
-      const delay = mobile.matches ? 3000 : 4500;
-
-      sliderTimer = setInterval(function () {
-
-        nextFaculty();
-
-      }, delay);
-
+      sliderTimer = setInterval(nextFaculty, mobile.matches ? 3000 : 4500);
     }
 
-
-    /* ARROW NAVIGATION */
-
-    nextBtn.addEventListener("click", function () {
-
+    nextBtn.addEventListener("click", () => {
       nextFaculty();
       startSlider();
-
     });
 
-    prevBtn.addEventListener("click", function () {
-
+    prevBtn.addEventListener("click", () => {
       previousFaculty();
       startSlider();
-
     });
 
-
-    /* RESPONSIVE */
-
     function resetSlider() {
-
       currentIndex = 0;
-
       renderFaculty();
       startSlider();
-
     }
 
     mobile.addEventListener("change", resetSlider);
-
     motion.addEventListener("change", startSlider);
 
-    document.addEventListener("visibilitychange", startSlider);
-
-
-    /* INITIALIZE */
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopSlider();
+      } else {
+        startSlider();
+      }
+    });
 
     renderFaculty();
     startSlider();
-
   }
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", initFaculty);
-
   } else {
-
     initFaculty();
-
   }
-
 })();
-
 
 
 // success stories
