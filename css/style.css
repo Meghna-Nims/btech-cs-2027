@@ -2533,6 +2533,30 @@ body.story-modal-open{overflow:hidden}
   }
 }
 
+.high-faculty .faculty-card {
+    background: linear-gradient(
+        145deg,
+        #780109 0%,
+        #a50916 45%,
+        #e04b55 100%
+    );
+    box-shadow: 0 12px 30px rgba(120, 1, 9, 0.18);
+    border: 1px solid rgba(255,255,255,.25);
+}
+
+.high-faculty .faculty-info {
+    background: linear-gradient(135deg, #780109, #a50916);
+    border: 1px solid rgba(255,255,255,.25);
+}
+
+.high-faculty .faculty-info h3,
+.high-faculty .faculty-info p {
+    color: #fff;
+}
+
+.high-faculty .faculty-info::after {
+    background: #ffd28a;
+}
 
 
 /* faculty end */
