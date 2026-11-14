@@ -32,9 +32,10 @@ img {
 a {
   color: inherit;
 }
+p{ text-transform: capitalize; }
 .btech-gradient {
   display: block;
-  background: linear-gradient(90deg, #2300E6 2%, #FF3D40 98%);
+  background: linear-gradient(90deg, #2300E6 0%, #FF3D40 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
