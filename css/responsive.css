@@ -2021,6 +2021,13 @@
   }
 
   /* hero */
+  .btech-cs-hero {
+    min-height: auto;
+    height: auto;
+    overflow: hidden;
+    background: #132d66;
+  }
+
   .btech-cs-hero .hero-background {
     background-position: 62% center;
   }
@@ -2032,28 +2039,41 @@
   }
 
   .btech-cs-hero .hero-layout {
-    padding: 38px 16px 35px;
-    gap: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    min-height: auto;
+    padding: 35px 16px 28px;
+  }
+
+  .btech-cs-hero .hero-copy {
+    display: contents;
   }
 
   .btech-cs-hero .school-title {
-    font-size: 19px;
+    order: 1;
+    margin: 0;
+    padding-left: 8px;
+    font-size: 14px;
     line-height: 1.4;
-    margin-bottom: 17px;
   }
 
   .btech-cs-hero .course-title {
+    order: 2;
     width: 100%;
-    font-size: clamp(43px, 10vw, 58px);
+    margin: 0;
+    font-size: clamp(30px, 10vw, 56px);
     line-height: 1.05;
     letter-spacing: 1px;
-    margin-bottom: 22px;
   }
 
   .btech-cs-hero .admission-strip {
-    width: 100%;
-        max-width: fit-content;
-    padding: 10px 12px;
+    order: 3;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0;
+    padding: 10px 13px;
     font-size: 11px;
   }
 
@@ -2061,21 +2081,40 @@
     font-size: 16px;
   }
 
+  .btech-cs-hero .form-placeholder {
+    order: 4;
+    width: 100%;
+    min-height: 300px;
+    height: 300px;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .btech-cs-hero .placeholder-inner {
+    min-height: 300px;
+    height: 100%;
+  }
+
   .btech-cs-hero .copy-rule {
+    order: 5;
     width: 25%;
-    margin: 18px 0;
+    margin: 5px 0 0;
   }
 
   .btech-cs-hero .benefits {
+    order: 6;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 0;
-    padding: 13px 7px;
+    gap: 12px 0;
+    width: 100%;
+    margin: 0;
+    padding: 14px 8px;
     border-radius: 12px;
   }
 
   .btech-cs-hero .benefit-item {
     gap: 8px;
-    padding:10px 25px;
+    padding: 12px 10px;
   }
 
   .btech-cs-hero .benefit-item img {
@@ -2089,16 +2128,6 @@
 
   .btech-cs-hero .benefit-item small {
     font-size: 8px;
-  }
-
-  .btech-cs-hero .form-placeholder {
-    width: 100%;
-    min-height: 300px;
-    border-radius: 10px;
-  }
-
-  .btech-cs-hero .placeholder-inner {
-    min-height: 300px;
   }
 
   /* recruiters */
