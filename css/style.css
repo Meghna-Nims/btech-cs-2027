@@ -2333,7 +2333,7 @@ body.story-modal-open{overflow:hidden}
 .student-build-content{position:relative;z-index:2}
 .student-build-eyebrow{display:block;margin-bottom:8px;font-size:14px;font-weight:800;}
 .student-build-content h3{margin:0;font-family:var(--heading-font);font-size:64px;font-weight:400;line-height:1.03;letter-spacing:1.2px}
-.student-build-content h3 .nims-gradient{display:inline-block}
+.student-build-content h3 .btech-gradient{display:inline-block}
 .build-arrow{display:inline-block;margin-right:10px;font-family:Arial,sans-serif;font-size:.95em;font-weight:400}
 .student-build-description{margin:12px 0 42px;font-size:14px;line-height:1.6}
 .student-stats{max-width:700px}
@@ -2397,7 +2397,7 @@ body.story-modal-open{overflow:hidden}
 /* founders start */
 
 .founder-cards-section {
-    padding: 80px 0;
+    padding: 0 0 80px;
     background: #fff;
     font-family: var(--font);
     color: #fff;

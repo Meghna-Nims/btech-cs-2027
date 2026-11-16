@@ -919,6 +919,7 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 // faculty section
 
+
 (() => {
   function initFaculty() {
     const section = document.querySelector(".faculty-section");
@@ -948,6 +949,8 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
     let currentIndex = 0;
     let sliderTimer = null;
+    let isHovered = false;
+    let isInViewport = false;
 
     const getVisibleCount = () => mobile.matches ? 1 : 5;
 
@@ -962,7 +965,6 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
       if (!profile || !profile.classList.contains("faculty-profile")) return;
 
       modalBody.innerHTML = profile.innerHTML;
-
       modal.classList.add("active");
       document.body.style.overflow = "hidden";
 
@@ -974,7 +976,6 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
       modal.classList.remove("active");
       modalBody.innerHTML = "";
-
       document.body.style.overflow = "";
 
       startSlider();
@@ -1049,14 +1050,31 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
       stopSlider();
 
       if (
+        !isInViewport ||
+        isHovered ||
         document.hidden ||
         motion.matches ||
         modal?.classList.contains("active") ||
         cards.length <= getVisibleCount()
       ) return;
 
-      sliderTimer = setInterval(nextFaculty, mobile.matches ? 3000 : 4500);
+      sliderTimer = setInterval(
+        nextFaculty,
+        mobile.matches ? 3000 : 4500
+      );
     }
+
+    cards.forEach(card => {
+      card.addEventListener("mouseenter", () => {
+        isHovered = true;
+        stopSlider();
+      });
+
+      card.addEventListener("mouseleave", () => {
+        isHovered = false;
+        startSlider();
+      });
+    });
 
     nextBtn.addEventListener("click", () => {
       nextFaculty();
@@ -1067,6 +1085,22 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
       previousFaculty();
       startSlider();
     });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        isInViewport = entry.isIntersecting;
+
+        if (isInViewport) {
+          startSlider();
+        } else {
+          stopSlider();
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    observer.observe(section);
 
     function resetSlider() {
       currentIndex = 0;
@@ -1086,7 +1120,6 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
     });
 
     renderFaculty();
-    startSlider();
   }
 
   if (document.readyState === "loading") {
@@ -1098,7 +1131,6 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 
 
 // success stories
-
 
 document.addEventListener("DOMContentLoaded", function () {
     const slider = document.querySelector(".success-stories-grid");
@@ -1121,23 +1153,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return 3;
     }
 
-    function getStep() {
-        const card = cards[0];
-        const gap = parseFloat(getComputedStyle(slider).gap) || 0;
-
-        return (card.offsetWidth + gap) * getVisibleCards();
-    }
-
     function showGroup(index) {
-        const maxIndex = Math.max(0, cards.length - getVisibleCards());
+        const visible = getVisibleCards();
+        const maxIndex = Math.max(0, cards.length - visible);
 
         currentIndex = Math.max(0, Math.min(index, maxIndex));
 
+        const gap = parseFloat(getComputedStyle(slider).gap) || 0;
+        const step = cards[0].offsetWidth + gap;
+
         slider.scrollTo({
-            left: currentIndex * (
-                cards[0].offsetWidth +
-                (parseFloat(getComputedStyle(slider).gap) || 0)
-            ),
+            left: currentIndex * step,
             behavior: "smooth"
         });
     }
@@ -1146,29 +1172,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const visible = getVisibleCards();
         const maxIndex = Math.max(0, cards.length - visible);
 
-        if (currentIndex >= maxIndex) {
-            showGroup(0);
-        } else {
-            showGroup(Math.min(currentIndex + visible, maxIndex));
-        }
+        showGroup(currentIndex >= maxIndex ? 0 : Math.min(currentIndex + visible, maxIndex));
     }
 
     function movePrev() {
         const visible = getVisibleCards();
+        const maxIndex = Math.max(0, cards.length - visible);
 
-        if (currentIndex <= 0) {
-            showGroup(Math.max(0, cards.length - visible));
-        } else {
-            showGroup(Math.max(0, currentIndex - visible));
-        }
-    }
-
-    function startAutoplay() {
-        clearInterval(timer);
-
-        if (isHovered || document.hidden) return;
-
-        timer = setInterval(moveNext, 2500);
+        showGroup(currentIndex <= 0 ? maxIndex : Math.max(0, currentIndex - visible));
     }
 
     function pauseAutoplay() {
@@ -1176,35 +1187,50 @@ document.addEventListener("DOMContentLoaded", function () {
         timer = null;
     }
 
-    next.addEventListener("click", () => {
-        moveNext();
-        startAutoplay();
-    });
+    function startAutoplay() {
+        pauseAutoplay();
 
-    prev.addEventListener("click", () => {
-        movePrev();
-        startAutoplay();
-    });
+        if (isHovered || document.hidden) return;
 
-    slider.addEventListener("mouseenter", () => {
+        timer = setInterval(moveNext, 2500);
+    }
+
+    slider.addEventListener("mouseenter", function () {
         isHovered = true;
         pauseAutoplay();
     });
 
-    slider.addEventListener("mouseleave", () => {
+    slider.addEventListener("mouseleave", function () {
         isHovered = false;
         startAutoplay();
     });
 
-    document.addEventListener("visibilitychange", startAutoplay);
+    next.addEventListener("click", function () {
+        moveNext();
+        startAutoplay();
+    });
 
-    window.addEventListener("resize", () => {
+    prev.addEventListener("click", function () {
+        movePrev();
+        startAutoplay();
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+            pauseAutoplay();
+        } else {
+            startAutoplay();
+        }
+    });
+
+    window.addEventListener("resize", function () {
         showGroup(currentIndex);
     });
 
     showGroup(0);
     startAutoplay();
 });
+
 
 
 
