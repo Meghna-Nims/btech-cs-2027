@@ -1,39 +1,65 @@
 
 (() => {
-  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   // Student image fade
   const students = [...document.querySelectorAll(".student-slide")];
-  let studentIndex = Math.max(0, students.findIndex(s => s.classList.contains("is-active")));
+  let studentIndex = Math.max(
+    0,
+    students.findIndex(student => student.classList.contains("is-active"))
+  );
 
   if (students.length > 1) {
-    const showStudent = i => {
-      studentIndex = i % students.length;
-      students.forEach((s, n) => {
-        s.classList.toggle("is-active", n === studentIndex);
-        s.setAttribute("aria-hidden", String(n !== studentIndex));
+    const showStudent = index => {
+      studentIndex = (index + 1) % students.length;
+
+      students.forEach((student, i) => {
+        const active = i === studentIndex;
+
+        student.classList.toggle("is-active", active);
+        student.setAttribute("aria-hidden", String(!active));
       });
     };
 
-    if (!reducedMotion.matches) {
-      setInterval(() => {
-        if (!document.hidden) showStudent(studentIndex + 1);
+    let studentTimer = null;
+
+    const startStudentSlider = () => {
+      clearInterval(studentTimer);
+
+      if (reducedMotion.matches) return;
+
+      studentTimer = setInterval(() => {
+        if (!document.hidden) {
+          showStudent(studentIndex);
+        }
       }, 3000);
-    }
+    };
+
+    startStudentSlider();
+
+    reducedMotion.addEventListener("change", startStudentSlider);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) clearInterval(studentTimer);
+      else startStudentSlider();
+    });
   }
 
   // Recognition carousel
   const carousel = document.querySelector("#recognitionCarousel");
-  if (!carousel) return;
-
-  const track = carousel.querySelector(".recognition-track");
-  const slides = [...track.querySelectorAll(".recognition-slide")];
   const dotsContainer = document.querySelector(".recognition-dots");
 
-  if (!track || slides.length !== 3 || !dotsContainer) return;
+  if (!carousel || !dotsContainer) return;
 
-  const secondSlide = slides[1];
-  const longList = secondSlide.querySelector(".recognition-long-list");
+  const track = carousel.querySelector(".recognition-track");
+
+  if (!track) return;
+
+  const slides = [...track.querySelectorAll(".recognition-slide")];
+
+  if (slides.length !== 3) return;
+
+  const longList = slides[1].querySelector(".recognition-long-list");
   const longCards = longList
     ? [...longList.querySelectorAll(".recognition-long-row")]
     : [];
@@ -43,18 +69,19 @@
   let index = 0;
   let timer = null;
   let dots = [];
+  let previousMobileState = isMobile();
 
-  function getSlideCount() {
-    return isMobile() ? 4 : 3;
-  }
+  const getSlideCount = () => isMobile() ? 4 : 3;
 
   function createDots() {
     const count = getSlideCount();
+    const fragment = document.createDocumentFragment();
 
     dotsContainer.innerHTML = "";
 
     for (let i = 0; i < count; i++) {
       const dot = document.createElement("button");
+
       dot.type = "button";
       dot.setAttribute("aria-label", `Show recognition slide ${i + 1}`);
       dot.setAttribute("aria-pressed", "false");
@@ -64,35 +91,49 @@
         startAutoplay();
       });
 
-      dotsContainer.appendChild(dot);
+      fragment.appendChild(dot);
     }
 
+    dotsContainer.appendChild(fragment);
     dots = [...dotsContainer.querySelectorAll("button")];
   }
 
+  function showInnerCard(i) {
+    if (!longList || !longCards[i]) return;
+
+    const card = longCards[i];
+
+    const left =
+      card.offsetLeft - longList.offsetLeft;
+
+    longList.scrollTo({
+      left,
+      behavior: reducedMotion.matches ? "auto" : "smooth"
+    });
+  }
+
   function showSlide(i) {
+    const mobile = isMobile();
     const count = getSlideCount();
 
     index = (i + count) % count;
 
-    if (isMobile()) {
-      if (index === 0) {
-        track.style.transform = "translateX(0%)";
-      } else if (index === 1 || index === 2) {
-        track.style.transform = "translateX(-100%)";
+    if (mobile) {
+      const position = index === 0 ? 0 : index === 3 ? 2 : 1;
+
+      track.style.transform = `translateX(-${position * 100}%)`;
+
+      if (index === 1 || index === 2) {
         showInnerCard(index - 1);
-      } else {
-        track.style.transform = "translateX(-200%)";
       }
 
       slides.forEach((slide, n) => {
-        slide.setAttribute("aria-hidden", String(
-          n !== 0 && n !== 1 && n !== 2
-            ? true
-            : index === 0 ? n !== 0
-            : index === 3 ? n !== 2
-            : n !== 1
-        ));
+        const active =
+          index === 0 ? n === 0 :
+          index === 3 ? n === 2 :
+          n === 1;
+
+        slide.setAttribute("aria-hidden", String(!active));
       });
 
     } else {
@@ -104,47 +145,36 @@
     }
 
     dots.forEach((dot, n) => {
-      dot.classList.toggle("is-active", n === index);
-      dot.setAttribute("aria-pressed", String(n === index));
-    });
-  }
+      const active = n === index;
 
-  function showInnerCard(i) {
-    if (!longList || !longCards.length) return;
-
-    const card = longCards[i];
-
-    const left =
-      card.getBoundingClientRect().left -
-      longList.getBoundingClientRect().left +
-      longList.scrollLeft;
-
-    longList.scrollTo({
-      left,
-      behavior: "smooth"
+      dot.classList.toggle("is-active", active);
+      dot.setAttribute("aria-pressed", String(active));
     });
   }
 
   function startAutoplay() {
     clearInterval(timer);
 
-    if (
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) return;
+    if (reducedMotion.matches || document.hidden) return;
 
     timer = setInterval(() => {
-      if (!document.hidden && !carousel.matches(":hover")) {
+      if (
+        !carousel.matches(":hover") &&
+        !carousel.matches(":focus-within") &&
+        carousel.getClientRects().length
+      ) {
         showSlide(index + 1);
       }
     }, isMobile() ? 3000 : 2000);
   }
 
   function handleResize() {
-    const previousCount = dots.length;
-    const newCount = getSlideCount();
+    const currentMobileState = isMobile();
 
-    if (previousCount !== newCount) {
+    if (previousMobileState !== currentMobileState) {
+      previousMobileState = currentMobileState;
       index = 0;
+
       createDots();
       showSlide(0);
     }
@@ -155,258 +185,152 @@
   carousel.addEventListener("mouseenter", () => clearInterval(timer));
   carousel.addEventListener("mouseleave", startAutoplay);
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) clearInterval(timer);
-    else startAutoplay();
-  });
+  carousel.addEventListener("focusin", () => clearInterval(timer));
+  carousel.addEventListener("focusout", startAutoplay);
 
-  window.addEventListener("resize", handleResize);
+  document.addEventListener("visibilitychange", startAutoplay);
+
+  reducedMotion.addEventListener("change", startAutoplay);
+
+  window.addEventListener("resize", handleResize, { passive: true });
 
   createDots();
   showSlide(0);
   startAutoplay();
 })();
 
+
 //gallery section
 
 (() => {
   const carousel = document.querySelector("#facilitiesCarousel");
-  if (!carousel) return;
+  const section = document.querySelector(".facilities-section");
+  if (!carousel || !section) return;
 
   const stage = carousel.querySelector(".facilities-stage");
   const cards = [...stage.querySelectorAll(".facility-card")];
-
   const prevBtn = carousel.querySelector(".facilities-prev");
   const nextBtn = carousel.querySelector(".facilities-next");
-
-  if (cards.length < 2) return;
-
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  );
-
-  const lightbox = document.querySelector("#facilityLightbox");
-  const lightboxImage = document.querySelector("#facilityLightboxImage");
+  const lightbox = section.querySelector("#facilityLightbox");
+  const image = lightbox?.querySelector("#facilityLightboxImage");
+  const title = lightbox?.querySelector("#facilityPopupTitle");
+  const category = lightbox?.querySelector("#facilityPopupCategory");
+  const description = lightbox?.querySelector("#facilityPopupDescription");
+  const count = lightbox?.querySelector("#facilityPopupCount");
   const closeBtn = lightbox?.querySelector(".facility-lightbox-close");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  let activeIndex = 0;
-  let activeCard = null;
-  let isHovered = false;
-  let timer = null;
+  if (!stage || cards.length < 2) return;
 
-  function updateCarousel() {
-    const total = cards.length;
+  let index = 0, activeCard = null, hovered = false, timer = null;
+  let previousOverflow = "";
 
+  const update = () => {
     cards.forEach((card, i) => {
-      const slot = (i - activeIndex + total) % total;
-
-      if (slot <= 6) {
-        card.dataset.slot = slot;
-        card.classList.remove("is-hidden");
-      } else {
-        card.classList.add("is-hidden");
-      }
+      const slot = (i - index + cards.length) % cards.length;
+      card.dataset.slot = slot;
+      card.classList.toggle("is-hidden", slot > 6);
     });
-  }
+  };
 
-  function advanceCarousel() {
-    if (isHovered || document.hidden) return;
-
-    activeIndex = (activeIndex + 1) % cards.length;
-    updateCarousel();
-  }
-
-  function moveCarousel(direction) {
-    activeIndex =
-      (activeIndex + direction + cards.length) % cards.length;
-
-    updateCarousel();
-    startCarousel();
-  }
-
-  prevBtn?.addEventListener("click", () => {
-    moveCarousel(-1);
-  });
-
-  nextBtn?.addEventListener("click", () => {
-    moveCarousel(1);
-  });
-
-  function pauseCarousel() {
+  const pause = () => {
     clearInterval(timer);
     timer = null;
-  }
+  };
 
-  function startCarousel() {
-    pauseCarousel();
+  const start = () => {
+    pause();
+    if (document.hidden || reducedMotion.matches || hovered || lightbox?.classList.contains("active")) return;
+    timer = setInterval(() => {
+      index = (index + 1) % cards.length;
+      update();
+    }, 1800);
+  };
 
-    if (
-      document.hidden ||
-      reducedMotion.matches ||
-      isHovered ||
-      lightbox?.classList.contains("active")
-    ) return;
+  const move = direction => {
+    index = (index + direction + cards.length) % cards.length;
+    update();
+    start();
+  };
 
-    timer = setInterval(advanceCarousel, 1800);
-  }
+  const activate = card => {
+    if (card.classList.contains("is-hidden")) return;
+    activeCard?.classList.remove("is-active");
+    activeCard = card;
+    hovered = true;
+    stage.classList.add("is-hovering");
+    card.classList.add("is-active");
+    pause();
+  };
 
-  /* HOVER EXPANSION */
-
-  cards.forEach(card => {
-    card.addEventListener("mouseenter", () => {
-      if (card.classList.contains("is-hidden")) return;
-
-      if (activeCard) {
-        activeCard.classList.remove("is-active");
-      }
-
-      activeCard = card;
-      isHovered = true;
-
-      stage.classList.add("is-hovering");
-      card.classList.add("is-active");
-
-      pauseCarousel();
-    });
-  });
-
-  stage.addEventListener("mouseleave", () => {
-    if (activeCard) {
-      activeCard.classList.remove("is-active");
-      activeCard = null;
-    }
-
+  const deactivate = () => {
+    activeCard?.classList.remove("is-active");
+    activeCard = null;
+    hovered = false;
     stage.classList.remove("is-hovering");
+    start();
+  };
 
-    isHovered = false;
-    startCarousel();
-  });
+  const open = card => {
+    const img = card.querySelector("img");
+    const caption = card.querySelector("figcaption");
+    if (!lightbox || !img || !caption) return;
 
-  /* LIGHTBOX */
+    const i = cards.indexOf(card) + 1;
+    image.src = img.currentSrc || img.src;
+    image.alt = img.alt || caption.textContent.trim();
+    if (title) title.textContent = caption.textContent.trim();
+    if (category) category.textContent = card.dataset.category || "CAMPUS FACILITY";
+    if (description) description.textContent = card.dataset.description || "";
+    if (count) count.textContent = `${String(i).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
 
-  if (lightbox && lightboxImage && closeBtn) {
-    cards.forEach(card => {
-      const img = card.querySelector("img");
-
-      img?.addEventListener("click", () => {
-        if (card.classList.contains("is-hidden")) return;
-
-        lightboxImage.src = img.src;
-        lightboxImage.alt = img.alt;
-
-        lightbox.classList.add("active");
-        document.body.style.overflow = "hidden";
-
-        pauseCarousel();
-      });
-    });
-
-    function closeLightbox() {
-      lightbox.classList.remove("active");
-      document.body.style.overflow = "";
-      startCarousel();
-    }
-
-    closeBtn.addEventListener("click", closeLightbox);
-
-    lightbox.addEventListener("click", event => {
-      if (event.target === lightbox) {
-        closeLightbox();
-      }
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && lightbox.classList.contains("active")) {
-        closeLightbox();
-      }
-    });
-  }
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      pauseCarousel();
-    } else {
-      startCarousel();
-    }
-  });
-
-  reducedMotion.addEventListener("change", startCarousel);
-
-  updateCarousel();
-  startCarousel();
-
-})();
-
-
-(() => {
-  const section = document.querySelector(".facilities-section");
-  if (!section) return;
-
-  const stage = section.querySelector(".facilities-stage");
-  const lightbox = section.querySelector("#facilityLightbox");
-
-  if (!stage || !lightbox) return;
-
-  const popupImage = lightbox.querySelector("#facilityLightboxImage");
-  const popupTitle = lightbox.querySelector("#facilityPopupTitle");
-  const popupCategory = lightbox.querySelector("#facilityPopupCategory");
-  const popupDescription = lightbox.querySelector("#facilityPopupDescription");
-  const popupCount = lightbox.querySelector("#facilityPopupCount");
-  const closeButton = lightbox.querySelector(".facility-lightbox-close");
-
-  const cards = [...stage.querySelectorAll(".facility-card")];
-
-  function openPopup(card) {
-    const image = card.querySelector("img");
-    const title = card.querySelector("figcaption");
-
-    if (!image || !title) return;
-
-    const index = cards.indexOf(card) + 1;
-
-    popupImage.src = image.currentSrc || image.src;
-    popupImage.alt = image.alt || title.textContent.trim();
-
-    popupTitle.textContent = title.textContent.trim();
-    popupCategory.textContent = card.dataset.category || "CAMPUS FACILITY";
-    popupDescription.textContent = card.dataset.description || "";
-    popupCount.textContent =
-      `${String(index).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
-
+    previousOverflow = document.body.style.overflow;
     lightbox.classList.add("active");
+    lightbox.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-  }
+    pause();
+    closeBtn?.focus();
+  };
 
-  function closePopup() {
+  const close = () => {
+    if (!lightbox?.classList.contains("active")) return;
     lightbox.classList.remove("active");
-    document.body.style.overflow = "";
-  }
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = previousOverflow;
+    start();
+  };
 
-  stage.addEventListener("click", (event) => {
+  prevBtn?.addEventListener("click", () => move(-1));
+  nextBtn?.addEventListener("click", () => move(1));
+
+  cards.forEach(card => card.addEventListener("mouseenter", () => activate(card)));
+
+  stage.addEventListener("mouseleave", deactivate);
+
+  stage.addEventListener("click", event => {
     const card = event.target.closest(".facility-card");
-
-    if (card && stage.contains(card)) {
-      openPopup(card);
-    }
+    if (card && stage.contains(card) && !card.classList.contains("is-hidden")) open(card);
   });
 
-  closeButton?.addEventListener("click", closePopup);
+  closeBtn?.addEventListener("click", close);
 
-  lightbox.addEventListener("click", (event) => {
-    if (event.target === lightbox) {
-      closePopup();
-    }
+  lightbox?.addEventListener("click", event => {
+    if (event.target === lightbox) close();
   });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && lightbox.classList.contains("active")) {
-      closePopup();
-    }
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") close();
   });
+
+  document.addEventListener("visibilitychange", start);
+  reducedMotion.addEventListener("change", start);
+
+  update();
+  start();
 })();
+
 
 // videos section
-
 
 
 (() => {
@@ -663,157 +587,118 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
   startSlider();
 })();
 
-
-
 // leadership
 
-
 (() => {
-    const viewport = document.querySelector("#leadersViewport");
-    const track = document.querySelector("#leadersTrack");
+  const viewport = document.querySelector("#leadersViewport");
+  const track = document.querySelector("#leadersTrack");
+  if (!viewport || !track) return;
 
-    if (!viewport || !track) return;
+  const prev = document.querySelector("#leadersPrev");
+  const next = document.querySelector("#leadersNext");
+  const modal = document.querySelector("#leaderModal");
+  const player = document.querySelector("#leaderModalPlayer");
+  const close = modal?.querySelector(".leader-modal-close");
+  const backdrop = modal?.querySelector(".leader-modal-backdrop");
+  const cards = [...track.querySelectorAll(".leader-card")];
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const prev = document.querySelector("#leadersPrev");
-    const next = document.querySelector("#leadersNext");
-    const modal = document.querySelector("#leaderModal");
-    const player = document.querySelector("#leaderModalPlayer");
-    const close = modal?.querySelector(".leader-modal-close");
-    const backdrop = modal?.querySelector(".leader-modal-backdrop");
+  if (!cards.length) return;
 
-    const cards = [...track.querySelectorAll(".leader-card")];
+  let index = 0, timer = null, hovered = false, resizeTimer;
 
-    if (!cards.length) return;
+  const visibleCount = () => window.innerWidth <= 480 ? 1 : window.innerWidth <= 767 ? 2 : 3;
+  const maxIndex = () => Math.max(0, cards.length - visibleCount());
 
-    let index = 0;
-    let timer = null;
-    let isHovered = false;
+  function update() {
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const width = cards[0].getBoundingClientRect().width;
+    index = Math.min(index, maxIndex());
+    track.style.transform = `translateX(-${index * (width + gap)}px)`;
+  }
 
-    function visibleCount() {
-        if (window.innerWidth <= 480) return 1;
-        if (window.innerWidth <= 767) return 2;
-        return 3;
-    }
-
-    function update() {
-        const gap = parseFloat(getComputedStyle(track).gap) || 0;
-        const cardWidth = cards[0].getBoundingClientRect().width;
-        const maxIndex = Math.max(0, cards.length - visibleCount());
-
-        index = Math.max(0, Math.min(index, maxIndex));
-
-        track.style.transform =
-            `translateX(-${index * (cardWidth + gap)}px)`;
-    }
-
-    function moveNext() {
-        const maxIndex = Math.max(0, cards.length - visibleCount());
-
-        index = index >= maxIndex ? 0 : Math.min(index + visibleCount(), maxIndex);
-        update();
-    }
-
-    function movePrev() {
-        const maxIndex = Math.max(0, cards.length - visibleCount());
-
-        index = index <= 0
-            ? maxIndex
-            : Math.max(0, index - visibleCount());
-
-        update();
-    }
-
-    function startAutoplay() {
-        clearInterval(timer);
-
-        if (isHovered || document.hidden || modal?.classList.contains("is-open")) {
-            return;
-        }
-
-        timer = setInterval(moveNext, 2500);
-    }
-
-    function pauseAutoplay() {
-        clearInterval(timer);
-        timer = null;
-    }
-
-    // Navigation buttons
-    next?.addEventListener("click", () => {
-        moveNext();
-        startAutoplay();
-    });
-
-    prev?.addEventListener("click", () => {
-        movePrev();
-        startAutoplay();
-    });
-
-    // Pause on hover
-    viewport.addEventListener("mouseenter", () => {
-        isHovered = true;
-        pauseAutoplay();
-    });
-
-    viewport.addEventListener("mouseleave", () => {
-        isHovered = false;
-        startAutoplay();
-    });
-
-    // Video modal
-    function openVideo(url) {
-        if (!url || !modal || !player) return;
-
-        const iframe = document.createElement("iframe");
-        iframe.src = url;
-        iframe.title = "Industry leader video";
-        iframe.allow = "autoplay; encrypted-media; picture-in-picture";
-        iframe.allowFullscreen = true;
-
-        player.replaceChildren(iframe);
-        modal.classList.add("is-open");
-        modal.setAttribute("aria-hidden", "false");
-        document.body.classList.add("leader-modal-open");
-
-        pauseAutoplay();
-    }
-
-    function closeVideo() {
-        if (!modal || !player) return;
-
-        modal.classList.remove("is-open");
-        modal.setAttribute("aria-hidden", "true");
-        player.replaceChildren();
-        document.body.classList.remove("leader-modal-open");
-
-        startAutoplay();
-    }
-
-    track.addEventListener("click", event => {
-        const button = event.target.closest(".leader-play");
-        if (!button) return;
-
-        openVideo(button.dataset.video);
-    });
-
-    close?.addEventListener("click", closeVideo);
-    backdrop?.addEventListener("click", closeVideo);
-
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape") closeVideo();
-    });
-
-    window.addEventListener("resize", () => {
-        update();
-    });
-
-    document.addEventListener("visibilitychange", startAutoplay);
-
+  function move(direction) {
+    const max = maxIndex();
+    index = direction > 0
+      ? index >= max ? 0 : Math.min(index + visibleCount(), max)
+      : index <= 0 ? max : Math.max(0, index - visibleCount());
     update();
-    startAutoplay();
+    start();
+  }
 
+  function pause() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function start() {
+    pause();
+    if (hovered || document.hidden || reducedMotion.matches || modal?.classList.contains("is-open")) return;
+    timer = setInterval(() => move(1), 2500);
+  }
+
+  function openVideo(url) {
+    if (!url || !modal || !player) return;
+
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.title = "Industry leader video";
+    iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+    iframe.allowFullscreen = true;
+
+    player.replaceChildren(iframe);
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("leader-modal-open");
+    pause();
+    close?.focus();
+  }
+
+  function closeVideo() {
+    if (!modal?.classList.contains("is-open")) return;
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    player?.replaceChildren();
+    document.body.classList.remove("leader-modal-open");
+    start();
+  }
+
+  next?.addEventListener("click", () => move(1));
+  prev?.addEventListener("click", () => move(-1));
+
+  viewport.addEventListener("mouseenter", () => {
+    hovered = true;
+    pause();
+  });
+
+  viewport.addEventListener("mouseleave", () => {
+    hovered = false;
+    start();
+  });
+
+  track.addEventListener("click", event => {
+    const button = event.target.closest(".leader-play");
+    if (button && track.contains(button)) openVideo(button.dataset.video);
+  });
+
+  close?.addEventListener("click", closeVideo);
+  backdrop?.addEventListener("click", closeVideo);
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeVideo();
+  });
+
+  document.addEventListener("visibilitychange", start);
+  reducedMotion.addEventListener("change", start);
+
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(update, 150);
+  }, { passive: true });
+
+  update();
+  start();
 })();
-
 
 // placement path internships
 
@@ -826,11 +711,25 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
   if (!viewport || !track || !prev || !next) return;
 
   const cards = [...track.querySelectorAll(".placement-path-card")];
-  if (cards.length < 2) return;
+
+if (!cards.length) return;
+
+cards.forEach((card, index) => {
+  card.setAttribute("role", "group");
+  card.setAttribute("aria-roledescription", "slide");
+  card.setAttribute(
+    "aria-label",
+    `Slide ${index + 1} of ${cards.length}`
+  );
+});
+
+if (cards.length < 2) return;
 
   let index = 0;
   let timer = null;
   let hovering = false;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function visibleCount() {
     return window.innerWidth <= 767 ? 1 : 2;
@@ -860,14 +759,15 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
   }
 
   function startAutoSlide() {
-    clearInterval(timer);
+  clearInterval(timer);
+  timer = null;
 
-    timer = setInterval(() => {
-      if (!hovering && !document.hidden) {
-        advance();
-      }
-    }, 3000);
-  }
+  if (reducedMotion.matches || document.hidden || hovering) return;
+
+  timer = setInterval(advance, 3000);
+}
+
+reducedMotion.addEventListener("change", startAutoSlide);
 
   next.addEventListener("click", () => {
     index = index >= maxIndex()
@@ -918,7 +818,6 @@ document.querySelector(".stories-prev")?.addEventListener("click",()=>{
 })();
 
 // faculty section
-
 
 (() => {
   function initFaculty() {
@@ -1147,6 +1046,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let timer = null;
     let isHovered = false;
 
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
     function getVisibleCards() {
         if (window.innerWidth <= 575) return 1;
         if (window.innerWidth <= 991) return 2;
@@ -1164,7 +1065,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         slider.scrollTo({
             left: currentIndex * step,
-            behavior: "smooth"
+            behavior: reducedMotion.matches ? "auto" : "smooth"
         });
     }
 
@@ -1188,12 +1089,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function startAutoplay() {
-        pauseAutoplay();
+    pauseAutoplay();
 
-        if (isHovered || document.hidden) return;
+    if (reducedMotion.matches || isHovered || document.hidden) return;
 
-        timer = setInterval(moveNext, 2500);
-    }
+    timer = setInterval(moveNext, 2500);
+}
+
+reducedMotion.addEventListener("change", startAutoplay);
 
     slider.addEventListener("mouseenter", function () {
         isHovered = true;
@@ -1232,9 +1135,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
-
-
 // classroom
 (() => {
     const track = document.querySelector("#classroomTrack");
@@ -1259,6 +1159,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let timer;
     let isAnimating = false;
     const interval = 4000;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function updateSlider(animate = true) {
         track.style.transition = animate ? "transform .7s cubic-bezier(.22,.61,.36,1)" : "none";
@@ -1296,9 +1198,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function startAutoSlide() {
-        clearInterval(timer);
-        timer = setInterval(() => moveSlide(1), interval);
-    }
+    clearInterval(timer);
+    timer = null;
+
+    if (reducedMotion.matches || document.hidden) return;
+
+    timer = setInterval(() => moveSlide(1), interval);
+}
+
+reducedMotion.addEventListener("change", startAutoSlide);
 
     function restartAutoSlide() {
         startAutoSlide();
@@ -1534,4 +1442,155 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", updateStickyBar);
 
   updateStickyBar();
+})();
+
+
+
+/* Accessible modal focus management */
+
+(() => {
+  const modalConfigs = [
+    {
+      selector: "#facilityLightbox",
+      dialog: ".facility-popup",
+      close: ".facility-lightbox-close",
+      openClass: "active",
+      label: "Campus facility details"
+    },
+    {
+      selector: "#facultyModal",
+      dialog: ".faculty-modal-content",
+      close: ".faculty-modal-close",
+      openClass: "active",
+      label: "Faculty profile"
+    },
+    {
+      selector: "#storyModal",
+      dialog: ".story-modal-dialog",
+      close: ".story-modal-close",
+      openClass: "is-open",
+      label: "Video story"
+    },
+    {
+      selector: "#leaderModal",
+      dialog: ".leader-modal-content",
+      close: ".leader-modal-close",
+      openClass: "is-open",
+      label: "Industry leader video"
+    }
+  ];
+
+  const modals = modalConfigs
+    .map(config => ({
+      ...config,
+      element: document.querySelector(config.selector)
+    }))
+    .filter(config => config.element);
+
+  if (!modals.length) return;
+
+  let activeModal = null;
+  let previousFocus = null;
+
+  const focusableSelector = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    "[tabindex]:not([tabindex='-1'])",
+    "iframe"
+  ].join(",");
+
+  function isOpen(config) {
+    return config.element.classList.contains(config.openClass);
+  }
+
+  function getFocusable(dialog) {
+    return [...dialog.querySelectorAll(focusableSelector)]
+      .filter(element =>
+        element.getClientRects().length &&
+        element.getAttribute("aria-hidden") !== "true"
+      );
+  }
+
+  function syncModal() {
+    const opened = modals.find(isOpen);
+
+    if (opened === activeModal) return;
+
+    if (activeModal) {
+      activeModal.element.setAttribute("aria-hidden", "true");
+
+      if (previousFocus?.isConnected) {
+        previousFocus.focus();
+      }
+
+      activeModal = null;
+      previousFocus = null;
+    }
+
+    if (!opened) return;
+
+    activeModal = opened;
+    previousFocus = document.activeElement;
+
+    const dialog = opened.element.querySelector(opened.dialog);
+
+    if (!dialog) return;
+
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-label", opened.label);
+
+    opened.element.setAttribute("aria-hidden", "false");
+
+    const closeButton = dialog.querySelector(opened.close);
+    const focusable = getFocusable(dialog);
+
+    requestAnimationFrame(() => {
+      (closeButton || focusable[0] || dialog).focus();
+    });
+  }
+
+  document.addEventListener("keydown", event => {
+    if (!activeModal) return;
+
+    const dialog = activeModal.element.querySelector(activeModal.dialog);
+
+    if (!dialog || event.key !== "Tab") return;
+
+    const focusable = getFocusable(dialog);
+
+    if (!focusable.length) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (
+      !event.shiftKey &&
+      document.activeElement === last
+    ) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
+  const observer = new MutationObserver(syncModal);
+
+  modals.forEach(config => {
+    observer.observe(config.element, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  });
+
+  syncModal();
 })();
