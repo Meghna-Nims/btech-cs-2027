@@ -2282,7 +2282,7 @@ body.story-modal-open{overflow:hidden}
 .industry-partners{border-bottom:1px solid #eee;padding-bottom:16px; margin:80px 0;}
 .industry-partner{display:flex;align-items:center;justify-content:center;gap:10px;min-height:42px}
 .industry-partner:not(:last-child){border-right:1px solid #e5e5e5}
-.industry-partner img{width:125px;height:60px;object-fit:contain}
+.industry-partner img{width:140px;height:70px;object-fit:contain}
 .industry-partner span{font-size: 16px;
     line-height: 1.2;
     color: #555;
@@ -3934,7 +3934,7 @@ body.leader-modal-open{overflow:hidden}
 }
 
 .many-more{
-  color: #333;
+  color: #ccc;
   font-size: 16px;
   text-align:right;
   font-weight: 600;
