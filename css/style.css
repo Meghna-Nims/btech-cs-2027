@@ -3933,6 +3933,13 @@ body.leader-modal-open{overflow:hidden}
   }
 }
 
+.many-more{
+  color: #333;
+  font-size: 16px;
+  text-align:right;
+  font-weight: 600;
+  font-family:var(--font);
+}
 
 /* Keyboard accessibility for interactive controls */
 
