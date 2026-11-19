@@ -1661,6 +1661,8 @@ body.story-modal-open{overflow:hidden}
   font-size: 15px;
   line-height: 1.7;
   color: #555;
+  max-width: 65%;
+    margin: 0 auto;
 }
 
 .faculty-row {
@@ -2651,7 +2653,7 @@ body.story-modal-open{overflow:hidden}
     align-items: center;
     justify-content: center;
     height: 130px;
-    margin: 30px 0 50px;
+    margin: 30px 0;
     overflow: visible;
     border-radius: 60px;
     background: #FF5555;
@@ -2749,7 +2751,20 @@ body.story-modal-open{overflow:hidden}
     line-height: 1.5;
     color: #454545;
 }
-
+.earn-us-head{
+  font-size: 20px;
+    font-weight: 500;
+    font-family: var(--heading-font);
+    letter-spacing: 0.85px;
+    text-align: center;
+}
+.earn-us-para{
+  font-size: 16px;
+    font-weight: 400;
+    font-family: var(--font);
+    text-align: center;
+    margin-bottom: 30px;
+}
 /* ftu end */
 
 /* programs start */
