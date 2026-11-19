@@ -819,6 +819,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
 
 // faculty section
 
+
 (() => {
   function initFaculty() {
     const section = document.querySelector(".faculty-section");
@@ -827,13 +828,25 @@ reducedMotion.addEventListener("change", startAutoSlide);
     const row = section.querySelector(".faculty-row");
     const modal = document.querySelector("#facultyModal");
     const modalBody = document.querySelector("#facultyModalBody");
+
     const prevBtn = section.querySelector(".faculty-prev");
     const nextBtn = section.querySelector(".faculty-next");
+
+    const modalPrev = modal?.querySelector(".faculty-modal-prev");
+    const modalNext = modal?.querySelector(".faculty-modal-next");
+    const modalCounter = modal?.querySelector(".faculty-modal-counter");
 
     if (!row || !prevBtn || !nextBtn) return;
 
     const cards = [...row.querySelectorAll(".faculty-col")];
-    if (!cards.length) return;
+
+    const profiles = [
+      ...document.querySelectorAll(
+        ".faculty-profile-data .faculty-profile"
+      )
+    ];
+
+    if (!cards.length || !profiles.length) return;
 
     const mobile = window.matchMedia("(max-width: 575px)");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -847,56 +860,125 @@ reducedMotion.addEventListener("change", startAutoSlide);
     ];
 
     let currentIndex = 0;
+    let currentProfileIndex = 0;
     let sliderTimer = null;
     let isHovered = false;
     let isInViewport = false;
 
     const getVisibleCount = () => mobile.matches ? 1 : 5;
 
+    // MODAL PROFILE RENDER
+    function renderModalProfile(direction = "next") {
+      if (!modal || !modalBody) return;
+
+      const profile = profiles[currentProfileIndex];
+
+      if (!profile) return;
+
+      modalBody.classList.remove(
+        "profile-slide-next",
+        "profile-slide-prev"
+      );
+
+      modalBody.innerHTML = profile.innerHTML;
+
+      void modalBody.offsetWidth;
+
+      modalBody.classList.add(
+        direction === "next"
+          ? "profile-slide-next"
+          : "profile-slide-prev"
+      );
+
+      if (modalCounter) {
+        modalCounter.textContent =
+          `${currentProfileIndex + 1} / ${profiles.length}`;
+      }
+    }
+
+    // OPEN MODAL
     function openProfile(card) {
       if (!modal || !modalBody) return;
 
       const profileId = card.dataset.profile;
       if (!profileId) return;
 
-      const profile = document.getElementById(profileId);
+      const index = profiles.findIndex(
+        profile => profile.id === profileId
+      );
 
-      if (!profile || !profile.classList.contains("faculty-profile")) return;
+      if (index === -1) return;
 
-      modalBody.innerHTML = profile.innerHTML;
+      currentProfileIndex = index;
+
+      renderModalProfile();
+
       modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+
       document.body.style.overflow = "hidden";
 
       stopSlider();
     }
 
+    // MODAL NEXT
+    function nextModalProfile() {
+      currentProfileIndex =
+        (currentProfileIndex + 1) % profiles.length;
+
+      renderModalProfile("next");
+    }
+
+    // MODAL PREVIOUS
+    function previousModalProfile() {
+      currentProfileIndex =
+        (currentProfileIndex - 1 + profiles.length) % profiles.length;
+
+      renderModalProfile("prev");
+    }
+
+    // CLOSE MODAL
     function closeProfile() {
       if (!modal || !modalBody) return;
 
       modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+
       modalBody.innerHTML = "";
+
       document.body.style.overflow = "";
 
       startSlider();
     }
 
+    // MODAL EVENTS
     if (modal) {
-      modal.querySelector(".faculty-modal-close")?.addEventListener("click", closeProfile);
+      modal.querySelector(".faculty-modal-close")
+        ?.addEventListener("click", closeProfile);
 
-      modal.querySelector(".faculty-modal-overlay")?.addEventListener("click", closeProfile);
+      modal.querySelector(".faculty-modal-overlay")
+        ?.addEventListener("click", closeProfile);
+
+      modalPrev?.addEventListener("click", previousModalProfile);
+      modalNext?.addEventListener("click", nextModalProfile);
 
       document.addEventListener("keydown", e => {
-        if (e.key === "Escape" && modal.classList.contains("active")) {
-          closeProfile();
-        }
+        if (!modal.classList.contains("active")) return;
+
+        if (e.key === "Escape") closeProfile();
+        if (e.key === "ArrowRight") nextModalProfile();
+        if (e.key === "ArrowLeft") previousModalProfile();
       });
     }
 
+    // OPEN PROFILE ON CARD CLICK
     section.addEventListener("click", e => {
       const card = e.target.closest(".faculty-card");
+
       if (card) openProfile(card);
     });
 
+    // MAIN FACULTY SLIDER
     function renderFaculty() {
       const visibleCount = getVisibleCount();
 
@@ -906,6 +988,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
           index < currentIndex + visibleCount;
 
         card.classList.toggle("is-visible", visible);
+
         card.classList.remove(...positionClasses);
 
         if (visible && !mobile.matches) {
@@ -940,6 +1023,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
       renderFaculty();
     }
 
+    // AUTOPLAY
     function stopSlider() {
       clearInterval(sliderTimer);
       sliderTimer = null;
@@ -985,6 +1069,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
       startSlider();
     });
 
+    // VIEWPORT OBSERVER
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         isInViewport = entry.isIntersecting;
@@ -1001,6 +1086,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
 
     observer.observe(section);
 
+    // RESPONSIVE RESET
     function resetSlider() {
       currentIndex = 0;
       renderFaculty();
@@ -1027,6 +1113,7 @@ reducedMotion.addEventListener("change", startAutoSlide);
     initFaculty();
   }
 })();
+
 
 
 // success stories

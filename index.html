@@ -684,7 +684,7 @@
         </div>
         <div class="degree-feature-content">
             <h4>DUAL DEGREE ADVANTAGE</h4>
-            <p>NIMS + FTU <strong>U.S</strong> Degree</p>
+            <p>NIMS + FTU (Florida Tech University) <strong>U.S</strong> Degree</p>
         </div>
     </div>
     <div class="degree-feature">
@@ -693,7 +693,7 @@
         </div>
         <div class="degree-feature-content">
             <h4 class="red-text">U.S. DEGREE AT ZERO EXTRA COST</h4>
-            <p>Earn a <strong>U.S</strong> degree with no additional tuition</p>
+            <p>Earn a <strong>U.S</strong> degree with no additional tuition fee</p>
         </div>
     </div>
     <div class="degree-feature">
@@ -714,6 +714,19 @@
             <p>Global opportunities &amp; career pathways</p>
         </div>
     </div>
+
+    <div class="degree-feature">
+        <div class="degree-feature-icon">
+            <img src="images/dual-degree-international-faculty-icon.svg" alt="international icon">
+        </div>
+        <div class="degree-feature-content">
+            <h4>INTERNATIONAL FACULTY MENTORSHIP</h4>
+            <p>Get Trained / Mentored By International Faculty</p>
+        </div>
+    </div>
+
+
+    
 </div>
       </div>
     </div>
@@ -1121,7 +1134,7 @@
   data-category="CAMPUS EVENTS & ENTERTAINMENT"
   data-description="A large outdoor LED display that enhances campus events, celebrations and gatherings with high-visibility digital presentations and live event visuals.">
   <img src="images/air-led.webp" alt="Large outdoor LED screen at NIMS University" width="450" height="380" loading="lazy">
-  <figcaption>Outdoor LED Experience</figcaption>
+  <figcaption>Open Air LED Screen in campus</figcaption>
 </figure>
 
     </div>
@@ -3159,23 +3172,29 @@
 <div class="faculty-modal" id="facultyModal" aria-hidden="true">
   <div class="faculty-modal-overlay"></div>
 
-  <div
-  class="faculty-modal-content"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Faculty profile"
->
-    <button
-      type="button"
-      class="faculty-modal-close"
-      aria-label="Close Profile"
-    >
+  <div class="faculty-modal-content" role="dialog" aria-modal="true" aria-label="Faculty profile">
+
+    <button type="button" class="faculty-modal-close" aria-label="Close Profile">
       &times;
     </button>
 
     <div class="faculty-modal-inner" id="facultyModalBody"></div>
+
+    <div class="faculty-modal-navigation">
+      <button type="button" class="faculty-modal-prev" aria-label="Previous Faculty">
+        <span>&larr;</span> Previous
+      </button>
+
+      <span class="faculty-modal-counter"></span>
+
+      <button type="button" class="faculty-modal-next" aria-label="Next Faculty">
+        Next <span>&rarr;</span>
+      </button>
+    </div>
+
   </div>
 </div>
+
 
 
 <!-- faculty end -->
