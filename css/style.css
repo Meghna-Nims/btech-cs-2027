@@ -2889,24 +2889,224 @@ body.leader-modal-open{overflow:hidden}
 /* placement path end */
 
 /* classroom start */
-.classroom-section{padding:55px 0;background:#fbf4ec;overflow:hidden;font-family:var(--font);color:#292929}
-.classroom-container{width:calc(100% - 60px);max-width:1400px;margin:auto}
-.classroom-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
-.classroom-header h3{margin:0;font-family:var(--heading-font);font-size:60px;font-weight:400;line-height:1.05;letter-spacing:.3px}
-.classroom-header h3 span{color:#cf302c}
-.classroom-section .industry-text{width:100%;max-width:600px;font-size:16px;line-height:1.65;color:#555}
-.classroom-controls{display:flex;gap:16px;align-items:center}
-.classroom-arrow{display:grid;place-items:center;width:55px;height:55px;border:0;border-radius:50%;background:#171717;color:#fff;font-size:22px;line-height:1;cursor:pointer;transition:background .25s,transform .25s}
-.classroom-arrow:hover{background:#cf302c;transform:scale(1.08)}
-.classroom-slider{overflow:hidden;width:100%;border-radius:10px}
-.classroom-track{display:flex;transition:transform .7s cubic-bezier(.22,.61,.36,1);will-change:transform}
-.classroom-card{flex:0 0 100%;display:grid;grid-template-columns:37.5% 62.5%;min-height:245px;overflow:hidden;border:1px solid #e8e1da;border-radius:10px;background:#fff}
-.classroom-content{display:flex;flex-direction:column;justify-content:center;padding:28px 32px}
-.classroom-content h5{margin:0 0 12px;color:#cf302c;font-family:var(--heading-font);font-size:36px;font-weight:400;line-height:1.15}
-.classroom-content p{max-width:340px;margin:0;font-size:16px;line-height:1.65;color:#555}
-.classroom-image{min-width:0;overflow:hidden}
-.classroom-image img{display:block;width:100%;height:100%;min-height:245px;max-height: 450px;object-fit:cover;transition:transform .7s ease}
-.classroom-card:hover .classroom-image img{transform:scale(1.035)}
+
+.classroom-section {
+    padding: 65px 0;
+    background: #fbf4ec;
+    overflow: hidden;
+    font-family: var(--font);
+    color: #292929;
+}
+
+.classroom-container {
+    width: calc(100% - 60px);
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* CENTERED HEADER */
+.classroom-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.classroom-header h3 {
+    width: 100%;
+    margin: 0;
+    font-family: var(--heading-font);
+    font-size: 60px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: .3px;
+    text-align: center;
+}
+
+.classroom-header h3 span {
+    color: #cf302c;
+}
+
+/* CENTERED DESCRIPTION */
+.classroom-section .industry-text {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 35px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #555;
+    text-align: center;
+}
+
+/* SLIDER */
+.classroom-slider {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.classroom-track {
+    display: flex;
+    transition: transform .7s cubic-bezier(.22,.61,.36,1);
+    will-change: transform;
+}
+
+.classroom-card {
+    flex: 0 0 100%;
+    display: grid;
+    grid-template-columns: 37.5% 62.5%;
+    min-height: 245px;
+    overflow: hidden;
+    border: 1px solid #e8e1da;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.classroom-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 32px;
+}
+
+.classroom-content h5 {
+    margin: 0 0 12px;
+    color: #cf302c;
+    font-family: var(--heading-font);
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.classroom-content p {
+    max-width: 340px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #555;
+}
+
+.classroom-image {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.classroom-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 245px;
+    max-height: 450px;
+    object-fit: cover;
+    transition: transform .7s ease;
+}
+
+.classroom-card:hover .classroom-image img {
+    transform: scale(1.035);
+}
+
+/* NAVIGATION BELOW ARTICLES */
+.classroom-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 25px;
+}
+
+.classroom-arrow {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border: 0;
+    border-radius: 50%;
+    background: #171717;
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .25s, transform .25s;
+}
+
+.classroom-arrow:hover {
+    background: #cf302c;
+    transform: scale(1.08);
+}
+
+/* TABLET */
+@media (max-width: 991px) {
+    .classroom-header h3 {
+        font-size: 48px;
+    }
+
+    .classroom-card {
+        grid-template-columns: 42% 58%;
+    }
+
+    .classroom-content {
+        padding: 24px;
+    }
+
+    .classroom-content h5 {
+        font-size: 29px;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 575px) {
+    .classroom-section {
+        padding: 45px 0;
+    }
+
+    .classroom-container {
+        width: calc(100% - 30px);
+    }
+
+    .classroom-header h3 {
+        font-size: 34px;
+        line-height: 1.12;
+    }
+
+    .classroom-section .industry-text {
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .classroom-card {
+        grid-template-columns: 1fr;
+    }
+
+    .classroom-content {
+        padding: 24px 20px;
+    }
+
+    .classroom-content h5 {
+        font-size: 27px;
+    }
+
+    .classroom-content p {
+        max-width: 100%;
+        font-size: 14px;
+    }
+
+    .classroom-image img {
+        min-height: 210px;
+        max-height: 260px;
+    }
+
+    .classroom-controls {
+        margin-top: 20px;
+        gap: 12px;
+    }
+
+    .classroom-arrow {
+        width: 44px;
+        height: 44px;
+    }
+}
 
 /* scholarship start */
 .scholarship-section {
