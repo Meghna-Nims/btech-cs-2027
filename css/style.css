@@ -4197,6 +4197,8 @@ body.leader-modal-open{overflow:hidden}
 
   .faculty-modal-navigation {
     padding: 14px 12px;
+    position: sticky;
+        bottom: 0;
   }
 
   .faculty-modal-navigation button {
