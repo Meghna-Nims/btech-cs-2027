@@ -3361,7 +3361,7 @@ body.leader-modal-open{overflow:hidden}
   object-fit: contain;
   object-position: center bottom;
   pointer-events: none;
-}
+} */
 
 .admission-open-cta {
   position: relative;
@@ -3446,7 +3446,7 @@ body.leader-modal-open{overflow:hidden}
   font-size: 30px;
   line-height: 1.15;
   white-space: nowrap;
-} */
+} 
 
 /* admissions end */
 
