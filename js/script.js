@@ -343,6 +343,7 @@
   const topStories=[
     {title:"Brand Film ",id:"EjJlNHOXIXk"},
     {title:"World Health Summit Regional Meeting 2025 ",id:"BNAbDpv-BIU"},
+    {title:"Walkthrough Marik Labs",id:"T2zYEz2om-Q"},
     {title:"Petr Fiala's Visit to NIMS University ",id:"WYsxFymT-2s"},
     {title:"NIMS University FPV Campus Tour ",id:"vjZlcB_w2-Q"}
   ];
@@ -356,13 +357,10 @@
     {title:"Testimonial ",id:"eZ-GRDRQ-0Q"},
     {title:"Testimonial 2",id:"RFWfcduoPSc"},
     {title:"Global HR Industry Summit",id:"zbTpDJ9KehA"},
-    {title:"Walkthrough Marik Labs",id:"T2zYEz2om-Q"},
     {title:"Marik Visit Testimonial",id:"mj0b_P6dXG8"},
     {title:"Placement Day Celebration",id:"WezAB606iWI"},
     {title:"Brand Video",id:"z_bOyIGb-Sw"},
-    {title:"Hostel",id:"YqucPQQTRrE"},
     {title:"Hostel Facilities",id:"S-eyw3BJNUA"},
-    {title:"Campus Facilities",id:"o8ykj5UegSc"},
   ];
 
   let current=0,timer,startX=0,animating=false;

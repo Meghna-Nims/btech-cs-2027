@@ -3305,9 +3305,9 @@ body.leader-modal-open{overflow:hidden}
 /* scholarship end */
 
 /* admissions start */
-.admission-open-section {
+/* .admission-open-section {
   width: 100%;
-  position: relative;
+  position: relative; 
   overflow: hidden;
   background: #ff2026;
   font-family: var(--font);
@@ -3446,7 +3446,7 @@ body.leader-modal-open{overflow:hidden}
   font-size: 30px;
   line-height: 1.15;
   white-space: nowrap;
-}
+} */
 
 /* admissions end */
 
