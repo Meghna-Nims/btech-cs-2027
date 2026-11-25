@@ -205,12 +205,15 @@
 (() => {
   const carousel = document.querySelector("#facilitiesCarousel");
   const section = document.querySelector(".facilities-section");
+
   if (!carousel || !section) return;
 
   const stage = carousel.querySelector(".facilities-stage");
   const cards = [...stage.querySelectorAll(".facility-card")];
+
   const prevBtn = carousel.querySelector(".facilities-prev");
   const nextBtn = carousel.querySelector(".facilities-next");
+
   const lightbox = section.querySelector("#facilityLightbox");
   const image = lightbox?.querySelector("#facilityLightboxImage");
   const title = lightbox?.querySelector("#facilityPopupTitle");
@@ -218,20 +221,36 @@
   const description = lightbox?.querySelector("#facilityPopupDescription");
   const count = lightbox?.querySelector("#facilityPopupCount");
   const closeBtn = lightbox?.querySelector(".facility-lightbox-close");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Popup navigation buttons
+  const modalPrev = lightbox?.querySelector(".facility-modal-prev");
+  const modalNext = lightbox?.querySelector(".facility-modal-next");
+
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
 
   if (!stage || cards.length < 2) return;
 
-  let index = 0, activeCard = null, hovered = false, timer = null;
+  let index = 0;
+  let activeCard = null;
+  let hovered = false;
+  let timer = null;
   let previousOverflow = "";
+  let modalIndex = 0;
+
+  // ORIGINAL CAROUSEL UPDATE
 
   const update = () => {
     cards.forEach((card, i) => {
       const slot = (i - index + cards.length) % cards.length;
+
       card.dataset.slot = slot;
       card.classList.toggle("is-hidden", slot > 6);
     });
   };
+
+  // ORIGINAL AUTOPLAY
 
   const pause = () => {
     clearInterval(timer);
@@ -240,77 +259,171 @@
 
   const start = () => {
     pause();
-    if (document.hidden || reducedMotion.matches || hovered || lightbox?.classList.contains("active")) return;
+
+    if (
+      document.hidden ||
+      reducedMotion.matches ||
+      hovered ||
+      lightbox?.classList.contains("active")
+    ) return;
+
     timer = setInterval(() => {
       index = (index + 1) % cards.length;
       update();
     }, 1800);
   };
 
+  // ORIGINAL MANUAL NAVIGATION
+
   const move = direction => {
     index = (index + direction + cards.length) % cards.length;
+
     update();
     start();
   };
 
+  // ORIGINAL HOVER ACTIVATION
+
   const activate = card => {
     if (card.classList.contains("is-hidden")) return;
+
     activeCard?.classList.remove("is-active");
+
     activeCard = card;
     hovered = true;
+
     stage.classList.add("is-hovering");
     card.classList.add("is-active");
+
     pause();
   };
 
   const deactivate = () => {
     activeCard?.classList.remove("is-active");
+
     activeCard = null;
     hovered = false;
+
     stage.classList.remove("is-hovering");
+
     start();
   };
 
-  const open = card => {
+  // UPDATE POPUP CONTENT
+
+  const updateModal = card => {
+    if (!card || !image) return;
+
     const img = card.querySelector("img");
     const caption = card.querySelector("figcaption");
-    if (!lightbox || !img || !caption) return;
 
-    const i = cards.indexOf(card) + 1;
+    if (!img || !caption) return;
+
+    modalIndex = cards.indexOf(card);
+
     image.src = img.currentSrc || img.src;
     image.alt = img.alt || caption.textContent.trim();
-    if (title) title.textContent = caption.textContent.trim();
-    if (category) category.textContent = card.dataset.category || "CAMPUS FACILITY";
-    if (description) description.textContent = card.dataset.description || "";
-    if (count) count.textContent = `${String(i).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
+
+    if (title) {
+      title.textContent = caption.textContent.trim();
+    }
+
+    if (category) {
+      category.textContent =
+        card.dataset.category || "CAMPUS FACILITY";
+    }
+
+    if (description) {
+      description.textContent =
+        card.dataset.description || "";
+    }
+
+    if (count) {
+      count.textContent =
+        `${String(modalIndex + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
+    }
+  };
+
+  // OPEN POPUP
+
+  const open = card => {
+    if (!lightbox || !card) return;
+
+    updateModal(card);
 
     previousOverflow = document.body.style.overflow;
+
     lightbox.classList.add("active");
     lightbox.setAttribute("aria-hidden", "false");
+
     document.body.style.overflow = "hidden";
+
     pause();
+    deactivate();
+
     closeBtn?.focus();
   };
 
+  // NEW: POPUP PREVIOUS / NEXT NAVIGATION
+
+  const modalMove = direction => {
+    modalIndex =
+      (modalIndex + direction + cards.length) % cards.length;
+
+    updateModal(cards[modalIndex]);
+  };
+
+  // CLOSE POPUP
+
   const close = () => {
     if (!lightbox?.classList.contains("active")) return;
+
     lightbox.classList.remove("active");
     lightbox.setAttribute("aria-hidden", "true");
+
     document.body.style.overflow = previousOverflow;
+
     start();
   };
+
+  // ORIGINAL BOTTOM NAVIGATION
 
   prevBtn?.addEventListener("click", () => move(-1));
   nextBtn?.addEventListener("click", () => move(1));
 
-  cards.forEach(card => card.addEventListener("mouseenter", () => activate(card)));
+  // CARD HOVER
+
+  cards.forEach(card => {
+    card.addEventListener("mouseenter", () => activate(card));
+  });
 
   stage.addEventListener("mouseleave", deactivate);
 
+  // CARD CLICK
+
   stage.addEventListener("click", event => {
     const card = event.target.closest(".facility-card");
-    if (card && stage.contains(card) && !card.classList.contains("is-hidden")) open(card);
+
+    if (
+      card &&
+      stage.contains(card) &&
+      !card.classList.contains("is-hidden")
+    ) {
+      open(card);
+    }
   });
+
+  // NEW: POPUP NAVIGATION BUTTON EVENTS
+
+  modalPrev?.addEventListener("click", () => {
+    modalMove(-1);
+  });
+
+  modalNext?.addEventListener("click", () => {
+    modalMove(1);
+  });
+
+  // CLOSE BUTTON
 
   closeBtn?.addEventListener("click", close);
 
@@ -318,15 +431,33 @@
     if (event.target === lightbox) close();
   });
 
+  // KEYBOARD ESCAPE + POPUP NAVIGATION
+
   document.addEventListener("keydown", event => {
+    if (!lightbox?.classList.contains("active")) return;
+
     if (event.key === "Escape") close();
+
+    if (event.key === "ArrowLeft") {
+      modalMove(-1);
+    }
+
+    if (event.key === "ArrowRight") {
+      modalMove(1);
+    }
   });
 
+  // PAGE VISIBILITY
+
   document.addEventListener("visibilitychange", start);
+
   reducedMotion.addEventListener("change", start);
+
+  // INITIALIZE
 
   update();
   start();
+
 })();
 
 

@@ -763,8 +763,10 @@
             <p><strong>Diamond Rated</strong><span>University</span></p>
           </article>
           <article class="recognition-card">
-            <img src="images/ioh.png" alt="Institute of Happiness recognition" loading="lazy">
-            <p><strong>UGC Recognised</strong><span>University</span></p>
+            <img src="images/qs-ioh.svg" alt="Institute of Happiness recognition" loading="lazy">
+            <p><strong>Institution Of<br>
+Happiness
+</strong><span>Certified 2025–26</span></p>
           </article>
           <article class="recognition-card">
             <img src="images/ugc.png" alt="UGC recognition" loading="lazy">
@@ -1128,15 +1130,15 @@
   data-category="CAMPUS EVENTS & ENTERTAINMENT"
   data-description="An electrifying live concert experience featuring renowned celebrities and popular artists, bringing students together for unforgettable musical performances, high-energy entertainment and spectacular campus celebrations.">
   <img src="images/b-park.webp" alt="B-Parak concert at NIMS University" width="450" height="380" loading="lazy">
-  <figcaption>Celebrity Live Concerts</figcaption>
+  <figcaption>Live Celebrity Concerts & Performances</figcaption>
 </figure>
 
 <!-- OUTDOOR LED SCREEN -->
 <figure class="facility-card" data-slot="3"
   data-category="CAMPUS EVENTS & ENTERTAINMENT"
-  data-description="A large outdoor LED display that enhances campus events, celebrations and gatherings with high-visibility digital presentations and live event visuals.">
+  data-description="An open-air LED screen on campus offering an immersive viewing experience for movies, entertainment shows, live sports screenings and special events, bringing students together for memorable outdoor gatherings.">
   <img src="images/air-led.webp" alt="Large outdoor LED screen at NIMS University" width="450" height="380" loading="lazy">
-  <figcaption>Open Air LED Screen in campus</figcaption>
+  <figcaption>Open-Air LED Screen on Campus</figcaption>
 </figure>
 
     </div>
@@ -1153,31 +1155,49 @@
   </div>
 
   <!-- PREMIUM FACILITY POPUP -->
-  <div class="facility-lightbox" id="facilityLightbox" aria-hidden="true">
+  <div class="facility-lightbox" id="facilityLightbox">
 
     <button class="facility-lightbox-close" type="button" aria-label="Close">
       &times;
     </button>
 
-    <div class="facility-popup">
+    
+<div class="facility-popup">
 
-      <div class="facility-popup-image">
-        <img src="" alt="Facility Image" id="facilityLightboxImage">
-      </div>
+    <!-- Previous Facility -->
+    <button
+        type="button"
+        class="facility-modal-nav facility-modal-prev"
+        aria-label="Previous facility">
+        <i class="bi bi-chevron-left"></i>
+    </button>
 
-      <div class="facility-popup-content">
+    <!-- Next Facility -->
+    <button
+        type="button"
+        class="facility-modal-nav facility-modal-next"
+        aria-label="Next facility">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+
+    <div class="facility-popup-image">
+        <img src="" alt="" id="facilityLightboxImage">
+    </div>
+
+    <div class="facility-popup-content">
         <span class="facility-popup-category" id="facilityPopupCategory">
-          CAMPUS FACILITY
+            CAMPUS FACILITY
         </span>
 
         <h2 id="facilityPopupTitle">Facility Name</h2>
 
         <p id="facilityPopupDescription"></p>
 
-       
-      </div>
-
+        <div class="facility-popup-count" id="facilityPopupCount"></div>
     </div>
+
+</div>
+
   </div>
 
 </section>
@@ -3537,14 +3557,7 @@
           </div>
         </article>
 
-        <article class="leader-card">
-          <img class="leader-photo" src="images/Prof. Raghav Mehra.webp" alt="Prof. Raghav Mehra">
-                    <div class="leader-copy">
-            <p>NIMS University advances AI in healthcare through innovative research, technological integration, and smarter solutions for improved patient care.</p>
-            <h3>Prof. Raghav Mehra</h3>
-            <span>Department of CSE, Chandigarh University</span>
-          </div>
-        </article>
+        
 
         <article class="leader-card">
           <img class="leader-photo" src="images/Dr. Shibesh K. J..webp" alt="Rajesh Pal">
@@ -3556,25 +3569,9 @@
           </div>
         </article>
 
-        <article class="leader-card">
-          <img class="leader-photo" src="images/Prof. Anil Kumar.webp" alt="Prof. Anil Kumar">
-          
-          <div class="leader-copy">
-            <p>NIMS University promotes Open Source Intelligence through advanced research, digital investigation techniques, and ethical information analysis.</p>
-            <h3>Prof. Anil Kumar</h3>
-            <span>Professor & Head, Department of CSE, Poornima University, Jaipur </span>
-          </div>
-        </article>
+        
 
-        <article class="leader-card">
-          <img class="leader-photo" src="images/Prof. Paresh S. Patel.webp" alt="Prof. Paresh S. Patel">
-          
-          <div class="leader-copy">
-            <p>NIMS University explores molecular symmetry through advanced research, understanding molecular structures, and their scientific applications.</p>
-            <h3>Prof. Paresh S. Patel</h3>
-            <span>Professor, Department of Chemistry, Veer Marmad South Gujarat University, Surat, Gujarat </span>
-          </div>
-        </article>
+        
       </div>
     </div>
   </div>
